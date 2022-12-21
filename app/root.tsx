@@ -1,11 +1,17 @@
-import { Outlet, Scripts } from '@remix-run/react';
-import * as React from 'react';
+import type { LinksFunction } from '@remix-run/node';
+import { Links, Outlet, Scripts } from '@remix-run/react';
+import styles from './styles/app.css';
+
+export function links(): ReturnType<LinksFunction> {
+  return [{ rel: 'stylesheet', href: styles }];
+}
 
 export default function App() {
   return (
     <html>
       <head>
-        <title>My First Remix App</title>
+        <Links />
+        <title>Family History</title>
       </head>
       <body>
         <Outlet />

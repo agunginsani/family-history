@@ -3,8 +3,10 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "build": "remix build",
-    "dev": "remix dev"
+    "build": "npm run build:css && remix build",
+    "build:css": "tailwindcss -m -i ./styles/app.css -o app/styles/app.css",
+    "dev": "concurrently \"npm run dev:css\" \"remix dev\"",
+    "dev:css": "tailwindcss -w -i ./styles/app.css -o app/styles/app.css"
   },
   "keywords": [],
   "author": "",
@@ -22,7 +24,13 @@
     "@remix-run/dev": "^1.9.0",
     "@types/react": "^18.0.26",
     "@types/react-dom": "^18.0.9",
+    "autoprefixer": "^10.4.13",
+    "concurrently": "^7.6.0",
+    "postcss": "^8.4.20",
+    "prettier": "^2.8.1",
+    "prettier-plugin-tailwindcss": "^0.2.1",
     "prisma": "^4.7.1",
+    "tailwindcss": "^3.2.4",
     "ts-node": "^10.9.1"
   },
   "prisma": {
