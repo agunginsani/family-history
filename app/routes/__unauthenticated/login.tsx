@@ -14,7 +14,7 @@ export async function action({ request }: ActionArgs) {
     const data = await login({ email, password });
     return redirect("/", {
       headers: {
-        "Set-Cookie": await session.cookie.serialize(data.token),
+        "Set-Cookie": await session.serialize(data.token),
       },
     });
   } catch (error) {
@@ -34,8 +34,8 @@ export default function Login() {
     data.message;
   return (
     <div className="grid h-screen place-content-center">
-      <div className="w-80 rounded bg-white p-4 shadow">
-        <h1 className="mb-3 text-2xl">Who are you?</h1>
+      <main className="w-80 rounded bg-white p-4 shadow">
+        <span className="mb-3 text-2xl font-bold">Who are you?</span>
         <Form className="grid gap-y-2" method="post">
           <div
             className="flex h-6 items-center font-semibold text-red-500"
@@ -47,19 +47,19 @@ export default function Login() {
             <label className="text-sm" htmlFor="email">
               Email
             </label>
-            <Input id="email" type="email" name="email" />
+            <Input id="email" type="email" name="email" required />
           </div>
           <div className="grid gap-y-1">
             <label className="text-sm" htmlFor="password">
               Password
             </label>
-            <Input id="password" type="password" name="password" />
+            <Input id="password" type="password" name="password" required />
           </div>
           <Button className="mt-4 w-full">
             {transition.state === "submitting" ? "Submitting..." : "Submit"}
           </Button>
         </Form>
-      </div>
+      </main>
     </div>
   );
 }

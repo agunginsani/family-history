@@ -55,6 +55,10 @@ export async function login(payload: LoginDTO) {
   return prisma.session.create({ data: { token, userId } });
 }
 
+export async function logout(token: string) {
+  return prisma.session.delete({ where: { token } });
+}
+
 export async function getAuthorizedUser(token: string) {
   verify(token, JWT_SECRET);
   return prisma.user.findFirstOrThrow({

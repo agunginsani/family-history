@@ -4,11 +4,9 @@ import { session } from "~/utils/cookies.server";
 
 export async function loader({ request }: LoaderArgs) {
   const cookie = request.headers.get("Cookie");
-  try {
-    return await session.verify(cookie);
-  } catch (error) {
-    return redirect("/login");
-  }
+  const token = await session.parse(cookie);
+  if (token) return redirect("/");
+  return null;
 }
 
 export default function Index() {
