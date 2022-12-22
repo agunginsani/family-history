@@ -7,7 +7,10 @@ const Button = React.forwardRef<
 >(({ className, ...props }, ref) => {
   return (
     <button
-      className={clsx("rounded bg-blue-900 p-1 text-white", className)}
+      className={clsx(
+        "rounded bg-blue-900 p-1 text-white disabled:bg-gray-500",
+        className
+      )}
       ref={ref}
       {...props}
     />

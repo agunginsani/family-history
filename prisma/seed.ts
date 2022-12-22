@@ -1,13 +1,16 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from "@prisma/client";
+import { createHash } from "crypto";
 
 const prisma = new PrismaClient();
 
 async function main() {
+  const password = createHash("md5").update("P@ssw0rd").digest("hex");
   await prisma.user.create({
     data: {
-      name: 'Agung Insani',
-      email: 'agunginsanialam@gmail.com',
-      role: { create: { name: 'ADMIN' } },
+      email: "agunginsanialam@gmail.com",
+      name: "Agung Insani",
+      password,
+      role: { create: { name: "ADMIN" } },
     },
   });
 }
