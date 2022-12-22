@@ -32,7 +32,7 @@ export default function Index() {
           </Button>
         </Form>
       </header>
-      <div className="mt-3 px-3">
+      <div className="mt-5 px-3">
         <Outlet />
       </div>
     </div>

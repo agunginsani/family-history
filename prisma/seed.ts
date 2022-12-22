@@ -8,9 +8,21 @@ async function main() {
   await prisma.user.create({
     data: {
       email: "agunginsanialam@gmail.com",
-      name: "Agung Insani",
+      name: "Agung Insani Alam",
+      dob: new Date(1993, 0, 4),
+      gender: "male",
       password,
       role: { create: { name: "ADMIN" } },
+    },
+  });
+  await prisma.user.create({
+    data: {
+      email: "izzatijah@gmail.com",
+      name: "Izzati Choirina Fajrin",
+      dob: new Date(1994, 0, 18),
+      gender: "female",
+      password,
+      role: { create: { name: "USER" } },
     },
   });
 }

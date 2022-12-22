@@ -5,7 +5,7 @@ import { z } from "zod";
 import Button from "~/components/button";
 import Input from "~/components/input";
 import { session } from "~/utils/cookies.server";
-import { login } from "~/model/user.server";
+import { CredentialsError, login } from "~/model/user.server";
 
 export async function action({ request }: ActionArgs) {
   const formData = await request.formData();
@@ -20,7 +20,7 @@ export async function action({ request }: ActionArgs) {
     });
   } catch (error) {
     let message = "Something went wrong!";
-    if (error instanceof Error) message = error.message;
+    if (error instanceof CredentialsError) message = error.message;
     return { message };
   }
 }

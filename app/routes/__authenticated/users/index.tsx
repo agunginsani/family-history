@@ -1,21 +1,43 @@
-import { useLoaderData } from "@remix-run/react";
-import { prisma } from "~/utils/db.server";
+import { Link, useLoaderData } from "@remix-run/react";
+import { format } from "date-fns";
+import { getUsers } from "~/model/user.server";
 
 export async function loader() {
-  const users = await prisma.user.findMany();
+  const users = await getUsers();
   return users;
 }
 
 export default function Index() {
   const users = useLoaderData<ReturnType<typeof loader>>();
   return (
-    <div>
-      <h1>Users</h1>
-      <ul>
-        {users.map((user) => (
-          <li key={user.id}>{user.name}</li>
-        ))}
-      </ul>
-    </div>
+    <main className="mx-auto max-w-screen-lg overflow-auto rounded bg-white p-4 shadow">
+      <h1 className="sticky left-0 mb-3 text-xl font-bold" id="title">
+        Users
+      </h1>
+      <table aria-labelledby="title" className="w-full border-collapse border">
+        <thead>
+          <tr>
+            <th className=" border px-2">Name</th>
+            <th className=" border px-2">Email</th>
+            <th className=" whitespace-nowrap border px-2">Date of Birth</th>
+            <th className=" border px-2">Gender</th>
+          </tr>
+        </thead>
+        <tbody>
+          {users.map((user) => (
+            <tr key={user.id}>
+              <td className="whitespace-nowrap border px-2">{user.name}</td>
+              <td className="border px-2 text-blue-400 underline">
+                <Link to={`${user.id}`}>{user.email}</Link>
+              </td>
+              <td className="border px-2">
+                {format(new Date(user.dob), "d MMM yyyy")}
+              </td>
+              <td className="border px-2 capitalize">{user.gender}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </main>
   );
 }

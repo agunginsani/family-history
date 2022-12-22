@@ -13,11 +13,16 @@ type AddUserDTO = {
   name: string;
   password: string;
   roleId: number;
+  dob: Date;
+  gender: "male" | "female";
 };
 
-export async function addUser({ name, email, roleId, password }: AddUserDTO) {
+export async function addUser({ password, ...payload }: AddUserDTO) {
   const user = await prisma.user.create({
-    data: { name, email, roleId, password: hashPassword(password) },
+    data: {
+      password: hashPassword(password),
+      ...payload,
+    },
   });
   return user;
 }
@@ -27,7 +32,7 @@ export async function getUsers() {
   return users;
 }
 
-class CredentialsError extends Error {
+export class CredentialsError extends Error {
   constructor() {
     super();
     this.name = "CredentialsError";
