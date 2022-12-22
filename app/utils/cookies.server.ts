@@ -1,4 +1,4 @@
-import { createCookie, redirect } from "@remix-run/node";
+import { createCookie } from "@remix-run/node";
 import { getAuthorizedUser } from "~/model/user.server";
 
 export const session = {

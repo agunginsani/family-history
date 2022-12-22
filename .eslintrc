@@ -1,0 +1,1 @@
+{ "extends": ["@remix-run/eslint-config"] }

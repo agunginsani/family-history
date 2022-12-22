@@ -1,4 +1,5 @@
-import { ActionArgs, LoaderArgs, redirect } from "@remix-run/node";
+import type { LoaderArgs } from "@remix-run/node";
+import { redirect } from "@remix-run/node";
 import { Form, Outlet, useTransition } from "@remix-run/react";
 import Button from "~/components/button";
 import { session } from "~/utils/cookies.server";
