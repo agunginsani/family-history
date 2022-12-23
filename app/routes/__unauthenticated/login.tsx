@@ -2,8 +2,7 @@ import type { ActionArgs } from "@remix-run/node";
 import { redirect } from "@remix-run/node";
 import { Form, useActionData, useTransition } from "@remix-run/react";
 import { z } from "zod";
-import Button from "~/components/button";
-import Input from "~/components/input";
+import { Button, Input } from "~/components";
 import { session } from "~/utils/cookies.server";
 import { CredentialsError, login } from "~/model/user.server";
 

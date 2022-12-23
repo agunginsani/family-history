@@ -1,6 +1,6 @@
 import * as React from "react";
 
-const Input = React.forwardRef<
+export const Input = React.forwardRef<
   HTMLInputElement,
   React.ComponentPropsWithRef<"input">
 >((props, ref) => {
@@ -14,5 +14,3 @@ const Input = React.forwardRef<
 });
 
 Input.displayName = "Input";
-
-export default Input;

@@ -6,7 +6,7 @@ type ButtonProps = React.ComponentPropsWithRef<"button"> & {
   size?: "small" | "medium";
 };
 
-const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = "primary", size = "medium", ...props }, ref) => {
     return (
       <button
@@ -27,5 +27,3 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 );
 
 Button.displayName = "Button";
-
-export default Button;
