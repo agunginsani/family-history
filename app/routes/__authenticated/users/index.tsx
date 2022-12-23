@@ -1,5 +1,6 @@
 import { Link, useLoaderData } from "@remix-run/react";
 import { format } from "date-fns";
+import { Button } from "~/components";
 import { getUsers } from "~/model/user.server";
 
 export async function loader() {
@@ -11,9 +12,14 @@ export default function Index() {
   const users = useLoaderData<ReturnType<typeof loader>>();
   return (
     <main className="mx-auto max-w-screen-lg overflow-auto rounded bg-white p-4 shadow">
-      <h1 className="sticky left-0 mb-3 text-xl font-bold" id="title">
-        Users
-      </h1>
+      <div className="sticky left-0 mb-3 flex items-center justify-between">
+        <h1 className="text-xl font-bold" id="title">
+          Users
+        </h1>
+        <Link to="add">
+          <Button size="small">Add</Button>
+        </Link>
+      </div>
       <table aria-labelledby="title" className="w-full border-collapse border">
         <thead>
           <tr>
