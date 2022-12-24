@@ -1,5 +1,5 @@
 import { Link, useLoaderData } from "@remix-run/react";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { Button } from "~/components";
 import { getUsers } from "~/model/user.server";
 
@@ -37,7 +37,7 @@ export default function Index() {
                 <Link to={`${user.id}`}>{user.email}</Link>
               </td>
               <td className="border px-2">
-                {format(new Date(user.dob), "d MMM yyyy")}
+                {format(parseISO(user.dob), "d MMM yyyy")}
               </td>
               <td className="border px-2 capitalize">{user.gender}</td>
             </tr>
