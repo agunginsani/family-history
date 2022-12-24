@@ -2,5 +2,6 @@
 .env
 /app/styles
 /prisma/migrations
+/prisma/*.db
 build
 node_modules
