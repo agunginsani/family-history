@@ -1,6 +1,6 @@
 .cache
 .env
 /app/styles
-/prisma/*.db
+/prisma/migrations
 build
 node_modules

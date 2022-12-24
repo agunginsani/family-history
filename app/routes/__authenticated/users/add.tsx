@@ -7,7 +7,7 @@ export async function action() {
 
 export default function Add() {
   return (
-    <main className="mx-auto mb-8 max-w-lg rounded bg-white p-4 shadow">
+    <main className="mx-auto mb-5 max-w-lg rounded bg-white p-4 shadow">
       <h1 className="mb-3 text-2xl font-bold">Add User</h1>
       <Form className="grid gap-y-2" method="post">
         <div
