@@ -1,6 +1,7 @@
 import { prisma } from "~/utils/db.server";
 import { createHash } from "crypto";
 import { sign, verify } from "jsonwebtoken";
+import { z } from "zod";
 
 const JWT_SECRET = "123";
 
@@ -8,19 +9,21 @@ function hashPassword(password: string) {
   return createHash("md5").update(password).digest("hex");
 }
 
-type AddUserDTO = {
-  email: string;
-  name: string;
-  password: string;
-  roleId: number;
-  dob: Date;
-  gender: "male" | "female";
-};
+export const AddUserDTOSchema = z.object({
+  email: z.string().email(),
+  name: z.string(),
+  roleId: z.string(),
+  dob: z.string().datetime(),
+  gender: z.union([z.literal("male"), z.literal("female")]),
+});
 
-export async function addUser({ password, ...payload }: AddUserDTO) {
+export type AddUserDTO = z.infer<typeof AddUserDTOSchema>;
+
+export async function addUser({ roleId, ...payload }: AddUserDTO) {
   const user = await prisma.user.create({
     data: {
-      password: hashPassword(password),
+      roleId: Number(roleId),
+      password: hashPassword("P@ssw0rd"),
       ...payload,
     },
   });

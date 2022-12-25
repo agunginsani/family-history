@@ -9,7 +9,7 @@ async function main() {
     data: {
       email: "agunginsanialam@gmail.com",
       name: "Agung Insani Alam",
-      dob: new Date(1993, 0, 4),
+      dob: new Date('1993-1-4').toISOString(),
       gender: "male",
       password,
       role: { create: { name: "ADMIN" } },
@@ -19,7 +19,7 @@ async function main() {
     data: {
       email: "izzatijah@gmail.com",
       name: "Izzati Choirina Fajrin",
-      dob: new Date(1994, 0, 18),
+      dob: new Date('1994-1-18').toISOString(),
       gender: "female",
       password,
       role: { create: { name: "USER" } },
