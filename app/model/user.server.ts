@@ -9,7 +9,7 @@ function hashPassword(password: string) {
   return createHash("md5").update(password).digest("hex");
 }
 
-export const AddUserDTOSchema = z.object({
+export const AddOrEditUserDTOSchema = z.object({
   email: z.string().email(),
   name: z.string(),
   roleId: z.string(),
@@ -17,7 +17,7 @@ export const AddUserDTOSchema = z.object({
   gender: z.union([z.literal("male"), z.literal("female")]),
 });
 
-export type AddUserDTO = z.infer<typeof AddUserDTOSchema>;
+export type AddUserDTO = z.infer<typeof AddOrEditUserDTOSchema>;
 
 export async function addUser({ roleId, ...payload }: AddUserDTO) {
   const user = await prisma.user.create({
@@ -29,10 +29,34 @@ export async function addUser({ roleId, ...payload }: AddUserDTO) {
   });
   return user;
 }
+export async function editUser(id: string, { roleId, ...payload }: AddUserDTO) {
+  const user = await prisma.user.update({
+    where: {
+      id: Number(id),
+    },
+    data: {
+      roleId: Number(roleId),
+      ...payload,
+    },
+  });
+  return user;
+}
+
+export async function getUser(id: string) {
+  const users = await prisma.user.findFirstOrThrow({
+    where: { id: Number(id) },
+  });
+  return users;
+}
 
 export async function getUsers() {
   const users = await prisma.user.findMany();
   return users;
+}
+
+export async function deleteUser(id: string) {
+  const user = prisma.user.delete({ where: { id: Number(id) } });
+  return user;
 }
 
 export class CredentialsError extends Error {

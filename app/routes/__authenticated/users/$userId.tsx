@@ -1,22 +1,38 @@
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime";
-import type { ActionArgs } from "@remix-run/node";
-import { Form, Link, useActionData, useTransition } from "@remix-run/react";
+import type { ActionArgs, LoaderArgs } from "@remix-run/node";
+import {
+  Form,
+  Link,
+  useActionData,
+  useLoaderData,
+  useTransition,
+} from "@remix-run/react";
 import clsx from "clsx";
+import { formatInTimeZone } from "date-fns-tz";
 import * as React from "react";
 import { Input, Button, Select } from "~/components";
-import { AddOrEditUserDTOSchema, addUser } from "~/model/user.server";
+import { editUser, AddOrEditUserDTOSchema, getUser } from "~/model/user.server";
 
-export async function action({ request }: ActionArgs) {
+export async function loader({ params }: LoaderArgs) {
+  if (params.userId === undefined) throw new Error("User ID cannot be empty!");
+  return getUser(params.userId).then((user) => ({
+    ...user,
+    dob: formatInTimeZone(user.dob, "Asia/Jakarta", "yyyy-MM-dd"),
+  }));
+}
+
+export async function action({ request, params }: ActionArgs) {
+  if (params.userId === undefined) throw new Error("User ID cannot be empty!");
   const formData = await request.formData();
   const dobString = formData.get("dob")?.toString();
   dobString && formData.set("dob", new Date(dobString).toISOString());
   const parsedFormDataObject = AddOrEditUserDTOSchema.parse(
     Object.fromEntries(formData)
   );
-  return addUser(parsedFormDataObject)
+  return editUser(params.userId, parsedFormDataObject)
     .then((user) => ({
       type: "success" as const,
-      message: `${user.email} has been added!`,
+      message: `${user.email} has been updated!`,
     }))
     .catch((error) => {
       if (error instanceof PrismaClientKnownRequestError) {
@@ -29,30 +45,22 @@ export async function action({ request }: ActionArgs) {
           message,
         };
       }
-      console.error(error);
-      return null;
     });
 }
 
-export default function Add() {
+export default function Edit() {
   const transition = useTransition();
+  const user = useLoaderData<ReturnType<typeof loader>>();
   const response = useActionData<ReturnType<typeof action>>();
   const formRef = React.useRef<HTMLFormElement>(null);
-  const isAdding =
+  const isEditing =
     transition.state === "submitting" &&
-    transition.submission.formData.get("_action") === "add user";
-
-  React.useEffect(() => {
-    if (response?.type === "success") {
-      formRef.current?.reset();
-    }
-  }, [response?.type]);
-
+    transition.submission.formData.get("_action") === "edit user";
   return (
     <main className="mx-auto mb-5 max-w-lg rounded bg-white p-4 shadow">
-      <h1 className="mb-3 text-2xl font-bold">Add User</h1>
+      <h1 className="mb-3 text-2xl font-bold">Edit User</h1>
       <Form ref={formRef} className="grid gap-y-2" method="post">
-        <input type="hidden" name="_action" value="add user" />
+        <input type="hidden" name="_action" value="edit user" />
         <div
           className={clsx("flex h-6 items-center font-semibold", {
             "text-green-500": response?.type === "success",
@@ -60,19 +68,31 @@ export default function Add() {
           })}
           role="alert"
         >
-          {!isAdding && response?.message}
+          {!isEditing && response?.message}
         </div>
         <div className="grid gap-y-1">
           <label className="text-sm" htmlFor="name">
             Name
           </label>
-          <Input id="name" type="text" name="name" required />
+          <Input
+            id="name"
+            type="text"
+            defaultValue={user.name}
+            name="name"
+            required
+          />
         </div>
         <div className="grid gap-y-1">
           <label className="text-sm" htmlFor="email">
             Email
           </label>
-          <Input id="email" type="email" name="email" required />
+          <Input
+            id="email"
+            defaultValue={user.email}
+            type="email"
+            name="email"
+            required
+          />
         </div>
         <div className="grid gap-y-1">
           <label className="text-sm" id="gender">
@@ -89,7 +109,7 @@ export default function Add() {
                 type="radio"
                 value="male"
                 name="gender"
-                defaultChecked
+                defaultChecked={user.gender === "male"}
               />
               <label className="ml-2" htmlFor="gender-male">
                 Male
@@ -101,6 +121,7 @@ export default function Add() {
                 type="radio"
                 value="female"
                 name="gender"
+                defaultChecked={user.gender === "female"}
               />
               <label className="ml-2" htmlFor="gender-female">
                 Female
@@ -112,13 +133,19 @@ export default function Add() {
           <label className="text-sm" htmlFor="dob">
             Date of Birth
           </label>
-          <Input id="dob" type="date" name="dob" required />
+          <Input
+            id="dob"
+            type="date"
+            defaultValue={user.dob}
+            name="dob"
+            required
+          />
         </div>
         <div className="grid gap-y-1">
           <label className="text-sm" htmlFor="role">
             Role
           </label>
-          <Select id="role" name="roleId" required defaultValue="">
+          <Select id="role" name="roleId" required defaultValue={user.roleId}>
             <option value="" disabled>
               Select role
             </option>
@@ -127,8 +154,8 @@ export default function Add() {
           </Select>
         </div>
         <div className="mt-4 flex gap-x-2">
-          <Button>{isAdding ? "Submitting..." : "Submit"}</Button>
-          {!isAdding && (
+          <Button>{isEditing ? "Submitting..." : "Submit"}</Button>
+          {!isEditing && (
             <Link to="../users">
               <Button variant="text">Cancel</Button>
             </Link>
