@@ -9,6 +9,7 @@ import {
 } from "@remix-run/react";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
+import { Transition } from "react-transition-group";
 import { Button } from "~/components";
 import { useClickOutside } from "~/hooks";
 import { session } from "~/utils/cookies.server";
@@ -29,6 +30,7 @@ export async function loader({ request }: LoaderArgs) {
 function Menu() {
   const [isVisible, setIsVisible] = React.useState(false);
   const menuRef = React.useRef<HTMLDivElement>(null);
+  const overlayRef = React.useRef<HTMLDivElement>(null);
 
   useClickOutside(menuRef, () => {
     setIsVisible(false);
@@ -38,6 +40,22 @@ function Menu() {
   React.useEffect(() => {
     setIsVisible(false);
   }, [location.pathname]);
+
+  const slideTransitionStyles = {
+    entering: { left: 0 },
+    entered: { left: 0 },
+    exiting: { left: -256 },
+    exited: { left: -256 },
+    unmounted: {},
+  };
+
+  const fadeTransitionStyles = {
+    entering: { opacity: 0.5 },
+    entered: { opacity: 0.5 },
+    exiting: { opacity: 0 },
+    exited: { opacity: 0 },
+    unmounted: {},
+  };
 
   return (
     <>
@@ -52,37 +70,60 @@ function Menu() {
           alt="Toggle menu"
         />
       </button>
-      {isVisible
-        ? ReactDOM.createPortal(
-            <>
-              <div className="fixed left-0 top-0 z-10 h-screen w-screen bg-black opacity-50" />
-              <div
-                aria-modal="true"
-                className="fixed left-0 top-0 z-20 h-screen w-64 bg-white p-3"
-                ref={menuRef}
-                role="dialog"
-              >
-                <ul className="grid gap-y-2">
-                  <li>
-                    <Link to="">
-                      <Button variant="text" className="w-full text-left">
-                        Home
-                      </Button>
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="users">
-                      <Button variant="text" className="w-full text-left">
-                        User
-                      </Button>
-                    </Link>
-                  </li>
-                </ul>
-              </div>
-            </>,
+      <Transition
+        in={isVisible}
+        nodeRef={overlayRef}
+        timeout={200}
+        unmountOnExit
+      >
+        {(state) =>
+          ReactDOM.createPortal(
+            <div
+              ref={overlayRef}
+              className="fixed left-0 top-0 z-10 h-screen w-screen bg-black opacity-0"
+              style={{
+                transition: `opacity 200ms ease-in-out`,
+                ...fadeTransitionStyles[state],
+              }}
+            />,
             document.body
           )
-        : null}
+        }
+      </Transition>
+      <Transition in={isVisible} nodeRef={menuRef} timeout={200} unmountOnExit>
+        {(state) =>
+          ReactDOM.createPortal(
+            <div
+              aria-modal="true"
+              className="fixed left-0 top-0 z-20 h-screen w-64 bg-white p-3"
+              ref={menuRef}
+              role="dialog"
+              style={{
+                transition: `left 200ms ease-in-out`,
+                ...slideTransitionStyles[state],
+              }}
+            >
+              <ul className="grid gap-y-2">
+                <li>
+                  <Link to="">
+                    <Button variant="text" className="w-full text-left">
+                      Home
+                    </Button>
+                  </Link>
+                </li>
+                <li>
+                  <Link to="users">
+                    <Button variant="text" className="w-full text-left">
+                      User
+                    </Button>
+                  </Link>
+                </li>
+              </ul>
+            </div>,
+            document.body
+          )
+        }
+      </Transition>
     </>
   );
 }
