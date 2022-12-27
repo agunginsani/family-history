@@ -66,7 +66,6 @@ export default function Edit() {
   const isEditing =
     transition.state === "submitting" &&
     transition.submission.formData.get("_action") === "edit user";
-  const [role, setRole] = React.useState(SelectValueSchema.parse(user.role));
   return (
     <main className="mx-auto mb-5 max-w-lg rounded bg-white p-4 shadow">
       <h1 className="mb-3 text-2xl font-bold">Edit User</h1>
@@ -159,9 +158,8 @@ export default function Edit() {
           <Select
             id="role"
             name="roleId"
-            value={role}
             options={SelectOptionsSchema.parse(roles)}
-            onChange={setRole}
+            defaultValue={SelectValueSchema.parse(user.role)}
             required
           />
         </div>

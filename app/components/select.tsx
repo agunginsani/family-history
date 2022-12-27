@@ -23,24 +23,35 @@ export const SelectOptionsSchema = z.array(SelectValueSchema);
 
 type SelectProps<T = z.infer<typeof SelectValueSchema>> = Omit<
   React.ComponentPropsWithRef<"button">,
-  "value" | "type" | "onChange"
+  "value" | "defaultValue" | "type" | "onChange"
 > & {
   options?: Array<T>;
   required?: boolean;
-  value?: T;
+  defaultValue?: T;
   onChange?: (payload: T) => void;
 };
 
 export const Select = React.forwardRef<HTMLButtonElement, SelectProps>(
   (
-    { value, className, required, name, options = [], onChange, ...props },
+    {
+      defaultValue,
+      className,
+      required,
+      name,
+      options = [],
+      onChange,
+      ...props
+    },
     ref
   ) => {
     const [isOpen, setIsOpen] = React.useState(false);
     const [activeIndex, setActiveIndex] = React.useState<number | null>(null);
-    const [selectedIndex, setSelectedIndex] = React.useState<number | null>(
-      null
-    );
+    const [selectedIndex, setSelectedIndex] = React.useState(() => {
+      const index = options.findIndex((opt) => opt.id === defaultValue?.id);
+      if (index < 0) return null;
+      return index;
+    });
+
     const listItemRef = React.useRef<Array<HTMLElement | null>>([]);
 
     const { x, y, reference, floating, refs, strategy, context } = useFloating({
@@ -83,6 +94,9 @@ export const Select = React.forwardRef<HTMLButtonElement, SelectProps>(
       onChange?.(options[index]);
     }
 
+    const selectedValue =
+      selectedIndex !== null ? options[selectedIndex] : null;
+
     return (
       <div className="relative">
         <select
@@ -90,7 +104,7 @@ export const Select = React.forwardRef<HTMLButtonElement, SelectProps>(
           tabIndex={-1}
           name={name}
           required={required}
-          value={value?.id ?? ""}
+          value={selectedValue?.id}
           onChange={() => null}
         >
           <option value=""></option>
@@ -109,7 +123,7 @@ export const Select = React.forwardRef<HTMLButtonElement, SelectProps>(
           )}
           {...getReferenceProps(props)}
         >
-          {value?.name}
+          {selectedValue?.name}
         </button>
         <FloatingPortal>
           <Transition

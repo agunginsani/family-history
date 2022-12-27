@@ -57,9 +57,6 @@ export default function Add() {
   const isAdding =
     transition.state === "submitting" &&
     transition.submission.formData.get("_action") === "add user";
-  const [role, setRole] = React.useState<
-    { id: string; name: string } | undefined
-  >();
 
   React.useEffect(() => {
     if (response?.type === "success") {
@@ -131,9 +128,7 @@ export default function Add() {
           <Select
             id="role"
             name="roleId"
-            value={role}
             options={SelectOptionsSchema.parse(roles)}
-            onChange={setRole}
             required
           />
         </div>
