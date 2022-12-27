@@ -45,6 +45,7 @@ export async function editUser(id: string, { roleId, ...payload }: AddUserDTO) {
 export async function getUser(id: string) {
   const users = await prisma.user.findFirstOrThrow({
     where: { id: Number(id) },
+    include: { role: true },
   });
   return users;
 }

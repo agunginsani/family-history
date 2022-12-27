@@ -1,10 +1,21 @@
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime";
 import type { ActionArgs } from "@remix-run/node";
-import { Form, Link, useActionData, useTransition } from "@remix-run/react";
+import {
+  Form,
+  Link,
+  useActionData,
+  useLoaderData,
+  useTransition,
+} from "@remix-run/react";
 import clsx from "clsx";
 import * as React from "react";
-import { Input, Button, Select } from "~/components";
+import { Input, Button, Select, SelectOptionsSchema } from "~/components";
+import { getRoles } from "~/model/role.server";
 import { AddOrEditUserDTOSchema, addUser } from "~/model/user.server";
+
+export async function loader() {
+  return getRoles();
+}
 
 export async function action({ request }: ActionArgs) {
   const formData = await request.formData();
@@ -34,13 +45,21 @@ export async function action({ request }: ActionArgs) {
     });
 }
 
+function Label(props: React.ComponentPropsWithoutRef<"label">) {
+  return <label className="w-min whitespace-nowrap text-sm" {...props} />;
+}
+
 export default function Add() {
   const transition = useTransition();
+  const roles = useLoaderData<ReturnType<typeof loader>>();
   const response = useActionData<ReturnType<typeof action>>();
   const formRef = React.useRef<HTMLFormElement>(null);
   const isAdding =
     transition.state === "submitting" &&
     transition.submission.formData.get("_action") === "add user";
+  const [role, setRole] = React.useState<
+    { id: string; name: string } | undefined
+  >();
 
   React.useEffect(() => {
     if (response?.type === "success") {
@@ -63,21 +82,16 @@ export default function Add() {
           {!isAdding && response?.message}
         </div>
         <div className="grid gap-y-1">
-          <label className="text-sm" htmlFor="name">
-            Name
-          </label>
+          <Label htmlFor="name">Name</Label>
           <Input id="name" type="text" name="name" required />
         </div>
         <div className="grid gap-y-1">
-          <label className="text-sm" htmlFor="email">
-            Email
-          </label>
+          <Label htmlFor="email">Email</Label>
           <Input id="email" type="email" name="email" required />
         </div>
+
         <div className="grid gap-y-1">
-          <label className="text-sm" id="gender">
-            Gender
-          </label>
+          <Label id="gender">Gender</Label>
           <div
             aria-labelledby="gender"
             className="flex gap-x-3"
@@ -109,22 +123,19 @@ export default function Add() {
           </div>
         </div>
         <div className="grid gap-y-1">
-          <label className="text-sm" htmlFor="dob">
-            Date of Birth
-          </label>
+          <Label htmlFor="dob">Date of Birth</Label>
           <Input id="dob" type="date" name="dob" required />
         </div>
         <div className="grid gap-y-1">
-          <label className="text-sm" htmlFor="role">
-            Role
-          </label>
-          <Select id="role" name="roleId" required defaultValue="">
-            <option value="" disabled>
-              Select role
-            </option>
-            <option value="1">Admin</option>
-            <option value="2">User</option>
-          </Select>
+          <Label htmlFor="role">Role</Label>
+          <Select
+            id="role"
+            name="roleId"
+            value={role}
+            options={SelectOptionsSchema.parse(roles)}
+            onChange={setRole}
+            required
+          />
         </div>
         <div className="mt-4 flex gap-x-2">
           <Button>{isAdding ? "Submitting..." : "Submit"}</Button>

@@ -10,15 +10,25 @@ import {
 import clsx from "clsx";
 import { formatInTimeZone } from "date-fns-tz";
 import * as React from "react";
-import { Input, Button, Select } from "~/components";
+import {
+  Input,
+  Button,
+  Select,
+  SelectValueSchema,
+  SelectOptionsSchema,
+} from "~/components";
+import { getRoles } from "~/model/role.server";
 import { editUser, AddOrEditUserDTOSchema, getUser } from "~/model/user.server";
 
 export async function loader({ params }: LoaderArgs) {
   if (params.userId === undefined) throw new Error("User ID cannot be empty!");
-  return getUser(params.userId).then((user) => ({
-    ...user,
-    dob: formatInTimeZone(user.dob, "Asia/Jakarta", "yyyy-MM-dd"),
-  }));
+  return Promise.all([
+    getUser(params.userId).then((user) => ({
+      ...user,
+      dob: formatInTimeZone(user.dob, "Asia/Jakarta", "yyyy-MM-dd"),
+    })),
+    getRoles(),
+  ]);
 }
 
 export async function action({ request, params }: ActionArgs) {
@@ -50,12 +60,13 @@ export async function action({ request, params }: ActionArgs) {
 
 export default function Edit() {
   const transition = useTransition();
-  const user = useLoaderData<ReturnType<typeof loader>>();
+  const [user, roles] = useLoaderData<ReturnType<typeof loader>>();
   const response = useActionData<ReturnType<typeof action>>();
   const formRef = React.useRef<HTMLFormElement>(null);
   const isEditing =
     transition.state === "submitting" &&
     transition.submission.formData.get("_action") === "edit user";
+  const [role, setRole] = React.useState(SelectValueSchema.parse(user.role));
   return (
     <main className="mx-auto mb-5 max-w-lg rounded bg-white p-4 shadow">
       <h1 className="mb-3 text-2xl font-bold">Edit User</h1>
@@ -145,13 +156,14 @@ export default function Edit() {
           <label className="text-sm" htmlFor="role">
             Role
           </label>
-          <Select id="role" name="roleId" required defaultValue={user.roleId}>
-            <option value="" disabled>
-              Select role
-            </option>
-            <option value="1">Admin</option>
-            <option value="2">User</option>
-          </Select>
+          <Select
+            id="role"
+            name="roleId"
+            value={role}
+            options={SelectOptionsSchema.parse(roles)}
+            onChange={setRole}
+            required
+          />
         </div>
         <div className="mt-4 flex gap-x-2">
           <Button>{isEditing ? "Submitting..." : "Submit"}</Button>

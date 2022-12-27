@@ -1,3 +1,4 @@
+import { FloatingPortal, FloatingOverlay } from "@floating-ui/react";
 import type { LoaderArgs } from "@remix-run/node";
 import { redirect } from "@remix-run/node";
 import {
@@ -8,7 +9,6 @@ import {
   useTransition,
 } from "@remix-run/react";
 import * as React from "react";
-import * as ReactDOM from "react-dom";
 import { Transition } from "react-transition-group";
 import { Button } from "~/components";
 import { useClickOutside } from "~/hooks";
@@ -76,23 +76,23 @@ function Menu() {
         timeout={200}
         unmountOnExit
       >
-        {(state) =>
-          ReactDOM.createPortal(
-            <div
-              ref={overlayRef}
-              className="fixed left-0 top-0 z-10 h-screen w-screen bg-black opacity-0"
-              style={{
-                transition: `opacity 200ms ease-in-out`,
-                ...fadeTransitionStyles[state],
-              }}
-            />,
-            document.body
-          )
-        }
+        {(state) => (
+          <FloatingOverlay
+            ref={overlayRef}
+            className="fixed left-0 top-0 z-10 h-screen w-screen bg-black opacity-0 transition-opacity duration-200 ease-out"
+            style={fadeTransitionStyles[state]}
+            lockScroll
+          />
+        )}
       </Transition>
-      <Transition in={isVisible} nodeRef={menuRef} timeout={200} unmountOnExit>
-        {(state) =>
-          ReactDOM.createPortal(
+      <FloatingPortal>
+        <Transition
+          in={isVisible}
+          nodeRef={menuRef}
+          timeout={200}
+          unmountOnExit
+        >
+          {(state) => (
             <div
               aria-modal="true"
               className="fixed left-0 top-0 z-20 h-screen w-64 bg-white p-3"
@@ -119,11 +119,10 @@ function Menu() {
                   </Link>
                 </li>
               </ul>
-            </div>,
-            document.body
-          )
-        }
-      </Transition>
+            </div>
+          )}
+        </Transition>
+      </FloatingPortal>
     </>
   );
 }
