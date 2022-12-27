@@ -44,7 +44,7 @@ export default function Index() {
             <tr key={user.id}>
               <td className="whitespace-nowrap border p-2">{user.name}</td>
               <td className="border p-2 text-blue-400 underline">
-                <Link to={`${user.id}`}>{user.email}</Link>
+                <Link to={`${user.id}/edit`}>{user.email}</Link>
               </td>
               <td className="border p-2">
                 {formatInTimeZone(user.dob, "Asia/Jakarta", "d MMM yyyy")}
