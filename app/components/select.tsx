@@ -22,21 +22,23 @@ export const SelectValueSchema = z.object({
 export const SelectOptionsSchema = z.array(SelectValueSchema);
 
 type SelectProps<T = z.infer<typeof SelectValueSchema>> = Omit<
-  React.ComponentPropsWithRef<"button">,
-  "value" | "defaultValue" | "type" | "onChange"
+  React.ComponentPropsWithRef<"input">,
+  "value" | "defaultValue" | "type" | "onChange" | "readOnly"
 > & {
   options?: Array<T>;
   required?: boolean;
   defaultValue?: T;
+  value?: T;
   onChange?: (payload: T) => void;
 };
 
 type Index = number | null;
 
-export const Select = React.forwardRef<HTMLButtonElement, SelectProps>(
+export const Select = React.forwardRef<HTMLInputElement, SelectProps>(
   (
     {
       defaultValue,
+      value,
       className,
       required,
       name,
@@ -48,13 +50,10 @@ export const Select = React.forwardRef<HTMLButtonElement, SelectProps>(
   ) => {
     const [isOpen, setIsOpen] = React.useState(false);
     const [activeIndex, setActiveIndex] = React.useState<Index>(null);
-    const [selectedIndex, setSelectedIndex] = React.useState<Index>(() => {
-      const index = options.findIndex((opt) => opt.id === defaultValue?.id);
-      if (index < 0) return null;
-      return index;
-    });
+    const [selectedIndex, setSelectedIndex] = React.useState<Index>();
 
     const listItemRef = React.useRef<Array<HTMLElement | null>>([]);
+    const selectRef = React.useRef<HTMLSelectElement>(null);
 
     const { x, y, reference, floating, refs, strategy, context } = useFloating({
       open: isOpen,
@@ -85,29 +84,41 @@ export const Select = React.forwardRef<HTMLButtonElement, SelectProps>(
       unmounted: {},
     };
 
-    React.useImperativeHandle(
-      ref,
-      () => refs.reference.current as HTMLButtonElement
-    );
-
     function handleItemSelect(index: number) {
       setSelectedIndex(index);
       setIsOpen(false);
-      onChange?.(options[index]);
+      const selected = options[index];
+      onChange?.(selected);
+      if (selectRef.current) selectRef.current.value = selected.id;
+      (refs.domReference.current as HTMLInputElement).value = selected.name;
     }
 
-    const selectedValue =
-      selectedIndex !== null ? options[selectedIndex] : null;
+    React.useImperativeHandle(
+      ref,
+      () => refs.reference.current as HTMLInputElement
+    );
+
+    React.useEffect(() => {
+      const index = options.findIndex((opt) => opt.id === defaultValue?.id);
+      if (index > -1) setSelectedIndex(index);
+    }, [defaultValue?.id, options]);
+
+    React.useEffect(() => {
+      const index = options.findIndex((opt) => opt.id === value?.id);
+      if (index > -1) setSelectedIndex(index);
+    }, [options, value?.id]);
 
     return (
       <div className="relative">
         <select
+          ref={selectRef}
           className="sr-only absolute bottom-0 w-full"
           tabIndex={-1}
           name={name}
           required={required}
-          value={selectedValue?.id}
-          onChange={() => null}
+          value={value?.id}
+          defaultValue={defaultValue?.id}
+          onChange={onChange ? () => {} : undefined}
         >
           <option value=""></option>
           {options.map((option) => (
@@ -116,17 +127,18 @@ export const Select = React.forwardRef<HTMLButtonElement, SelectProps>(
             </option>
           ))}
         </select>
-        <button
+        <input
           ref={reference}
-          type="button"
           className={clsx(
             "h-8 w-full rounded border border-gray-200 p-1 text-left",
             className
           )}
+          value={value?.name}
+          defaultValue={defaultValue?.name}
+          onChange={onChange ? () => {} : undefined}
+          readOnly
           {...getReferenceProps(props)}
-        >
-          {selectedValue?.name}
-        </button>
+        />
         <FloatingPortal>
           <Transition
             in={isOpen}
