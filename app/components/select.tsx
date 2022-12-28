@@ -31,6 +31,8 @@ type SelectProps<T = z.infer<typeof SelectValueSchema>> = Omit<
   onChange?: (payload: T) => void;
 };
 
+type Index = number | null;
+
 export const Select = React.forwardRef<HTMLButtonElement, SelectProps>(
   (
     {
@@ -45,8 +47,8 @@ export const Select = React.forwardRef<HTMLButtonElement, SelectProps>(
     ref
   ) => {
     const [isOpen, setIsOpen] = React.useState(false);
-    const [activeIndex, setActiveIndex] = React.useState<number | null>(null);
-    const [selectedIndex, setSelectedIndex] = React.useState(() => {
+    const [activeIndex, setActiveIndex] = React.useState<Index>(null);
+    const [selectedIndex, setSelectedIndex] = React.useState<Index>(() => {
       const index = options.findIndex((opt) => opt.id === defaultValue?.id);
       if (index < 0) return null;
       return index;
