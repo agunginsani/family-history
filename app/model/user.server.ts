@@ -51,7 +51,7 @@ export async function getUser(id: string) {
 }
 
 export async function getUsers() {
-  const users = await prisma.user.findMany();
+  const users = await prisma.user.findMany({ orderBy: { id: "asc" } });
   return users;
 }
 
