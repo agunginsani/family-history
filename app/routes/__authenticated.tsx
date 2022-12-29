@@ -7,6 +7,7 @@ import {
   useDismiss,
   offset,
   FloatingFocusManager,
+  autoUpdate,
 } from "@floating-ui/react";
 import type { LoaderArgs } from "@remix-run/node";
 import { redirect } from "@remix-run/node";
@@ -21,7 +22,6 @@ import {
 import * as React from "react";
 import { Transition } from "react-transition-group";
 import { Button } from "~/components";
-import { useClickOutside } from "~/hooks";
 import { session } from "~/utils/cookies.server";
 
 export async function loader({ request }: LoaderArgs) {
@@ -38,24 +38,29 @@ export async function loader({ request }: LoaderArgs) {
 }
 
 function Menu() {
-  const [isVisible, setIsVisible] = React.useState(false);
-  const menuRef = React.useRef<HTMLDivElement>(null);
+  const [isOpen, setIsOpen] = React.useState(false);
   const overlayRef = React.useRef<HTMLDivElement>(null);
+  const location = useLocation();
 
-  useClickOutside(menuRef, () => {
-    setIsVisible(false);
+  const { refs, context, reference, floating } = useFloating({
+    open: isOpen,
+    onOpenChange: setIsOpen,
   });
 
-  const location = useLocation();
+  const { getFloatingProps, getReferenceProps } = useInteractions([
+    useClick(context),
+    useDismiss(context),
+  ]);
+
   React.useEffect(() => {
-    setIsVisible(false);
+    setIsOpen(false);
   }, [location.pathname]);
 
   const slideTransitionStyles = {
-    entering: { left: 0 },
-    entered: { left: 0 },
-    exiting: { left: -256 },
-    exited: { left: -256 },
+    entering: { left: 0, opacity: 1 },
+    entered: { left: 0, opacity: 1 },
+    exiting: { left: -256, opacity: 0 },
+    exited: { left: -256, opacity: 0 },
     unmounted: {},
   };
 
@@ -70,8 +75,9 @@ function Menu() {
   return (
     <>
       <button
+        ref={reference}
         className="mr-2 rounded border-2 p-2 hover:bg-gray-50"
-        onClick={() => setIsVisible(true)}
+        {...getReferenceProps()}
       >
         <img
           width={20}
@@ -82,7 +88,7 @@ function Menu() {
       </button>
       <FloatingPortal id="z-1">
         <Transition
-          in={isVisible}
+          in={isOpen}
           nodeRef={overlayRef}
           timeout={200}
           unmountOnExit
@@ -90,28 +96,26 @@ function Menu() {
           {(state) => (
             <FloatingOverlay
               ref={overlayRef}
-              className="fixed left-0 top-0 z-10 h-screen w-screen bg-black opacity-0 transition-opacity duration-200 ease-out"
+              className="fixed left-0 top-0 z-10 h-screen w-screen bg-black opacity-0 transition-opacity duration-200 ease-in-out"
               style={fadeTransitionStyles[state]}
               lockScroll
             />
           )}
         </Transition>
         <Transition
-          in={isVisible}
-          nodeRef={menuRef}
+          in={isOpen}
+          nodeRef={refs.floating}
           timeout={200}
           unmountOnExit
         >
           {(state) => (
             <div
               aria-modal="true"
-              className="fixed left-0 top-0 z-20 h-screen w-64 bg-white p-3"
-              ref={menuRef}
+              className="fixed left-0 top-0 z-20 h-screen w-64 bg-white p-3 opacity-0 transition-all duration-200 ease-in-out"
+              ref={floating}
               role="dialog"
-              style={{
-                transition: `left 200ms ease-in-out`,
-                ...slideTransitionStyles[state],
-              }}
+              style={slideTransitionStyles[state]}
+              {...getFloatingProps()}
             >
               <ul className="grid gap-y-2">
                 <li>
@@ -154,6 +158,7 @@ function Avatar() {
     middleware: [offset(8)],
     placement: "bottom-end",
     strategy: "fixed",
+    whileElementsMounted: autoUpdate,
   });
   const { getFloatingProps, getReferenceProps } = useInteractions([
     useClick(context),
@@ -186,7 +191,7 @@ function Avatar() {
             <FloatingFocusManager context={context}>
               <div
                 ref={floating}
-                className="flex w-52 flex-col justify-center gap-y-2 overflow-hidden rounded border border-slate-200 bg-white p-3 opacity-0 shadow transition-opacity duration-200 ease-out"
+                className="flex w-52 flex-col justify-center gap-y-2 overflow-hidden rounded border border-slate-200 bg-white p-3 opacity-0 shadow transition-opacity duration-200 ease-in-out"
                 style={{
                   position: strategy,
                   top: y ?? 0,
@@ -229,7 +234,7 @@ function Avatar() {
   );
 }
 
-export default function Index() {
+export default function Authenticated() {
   return (
     <>
       <header className="sticky top-0 flex h-16 items-center justify-between bg-white px-3 shadow-md">
