@@ -70,22 +70,22 @@ function Menu() {
           alt="Toggle menu"
         />
       </button>
-      <Transition
-        in={isVisible}
-        nodeRef={overlayRef}
-        timeout={200}
-        unmountOnExit
-      >
-        {(state) => (
-          <FloatingOverlay
-            ref={overlayRef}
-            className="fixed left-0 top-0 z-10 h-screen w-screen bg-black opacity-0 transition-opacity duration-200 ease-out"
-            style={fadeTransitionStyles[state]}
-            lockScroll
-          />
-        )}
-      </Transition>
-      <FloatingPortal>
+      <FloatingPortal id="z-1">
+        <Transition
+          in={isVisible}
+          nodeRef={overlayRef}
+          timeout={200}
+          unmountOnExit
+        >
+          {(state) => (
+            <FloatingOverlay
+              ref={overlayRef}
+              className="fixed left-0 top-0 z-10 h-screen w-screen bg-black opacity-0 transition-opacity duration-200 ease-out"
+              style={fadeTransitionStyles[state]}
+              lockScroll
+            />
+          )}
+        </Transition>
         <Transition
           in={isVisible}
           nodeRef={menuRef}
@@ -118,6 +118,13 @@ function Menu() {
                     </Button>
                   </Link>
                 </li>
+                <li>
+                  <Link to="sessions">
+                    <Button variant="text" className="w-full text-left">
+                      Session
+                    </Button>
+                  </Link>
+                </li>
               </ul>
             </div>
           )}
@@ -130,7 +137,7 @@ function Menu() {
 export default function Index() {
   const transition = useTransition();
   return (
-    <div>
+    <>
       <header className="sticky top-0 flex h-16 items-center justify-between bg-white px-3 shadow-md">
         <div>
           <Menu />
@@ -148,6 +155,6 @@ export default function Index() {
       <div className="mt-5 px-3">
         <Outlet />
       </div>
-    </div>
+    </>
   );
 }

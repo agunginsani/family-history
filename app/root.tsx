@@ -15,7 +15,10 @@ export default function App() {
         <Links />
       </head>
       <body className="bg-gray-100">
-        <Outlet />
+        <div id="z-0" className="relative z-0">
+          <Outlet />
+        </div>
+        <div id="z-1" className="z-1 relative" />
         <Scripts />
       </body>
     </html>
