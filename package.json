@@ -3,13 +3,13 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "build": "npm run build:css && remix build",
+    "build": "npm run build:css && npx remix build",
     "build:css": "npx tailwindcss -m -i ./styles/app.css -o app/styles/app.css",
     "dev": "concurrently \"npm run dev:css\" \"remix dev\"",
-    "dev:css": "npx tailwindcss -w -i ./styles/app.css -o app/styles/app.css",
+    "dev:css": "tailwindcss -w -i ./styles/app.css -o app/styles/app.css",
     "prisma:studio": "prisma studio",
     "prisma:generate": "prisma generate",
-    "start": "remix-serve build"
+    "start": "npx remix-serve build"
   },
   "keywords": [],
   "author": "",
