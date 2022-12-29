@@ -1,10 +1,20 @@
-import { FloatingPortal, FloatingOverlay } from "@floating-ui/react";
+import {
+  FloatingPortal,
+  FloatingOverlay,
+  useFloating,
+  useInteractions,
+  useClick,
+  useDismiss,
+  offset,
+  FloatingFocusManager,
+} from "@floating-ui/react";
 import type { LoaderArgs } from "@remix-run/node";
 import { redirect } from "@remix-run/node";
 import {
   Form,
   Link,
   Outlet,
+  useLoaderData,
   useLocation,
   useTransition,
 } from "@remix-run/react";
@@ -19,7 +29,7 @@ export async function loader({ request }: LoaderArgs) {
   try {
     return await session.verify(cookie);
   } catch (error) {
-    return redirect("/login", {
+    throw redirect("/login", {
       headers: {
         "Set-Cookie": await session.serialize("", { expires: new Date() }),
       },
@@ -134,8 +144,92 @@ function Menu() {
   );
 }
 
-export default function Index() {
+function Avatar() {
   const transition = useTransition();
+  const user = useLoaderData<ReturnType<typeof loader>>();
+  const [isOpen, setIsOpen] = React.useState(false);
+  const { x, y, reference, floating, refs, context, strategy } = useFloating({
+    open: isOpen,
+    onOpenChange: setIsOpen,
+    middleware: [offset(8)],
+    placement: "bottom-end",
+    strategy: "fixed",
+  });
+  const { getFloatingProps, getReferenceProps } = useInteractions([
+    useClick(context),
+    useDismiss(context),
+  ]);
+  const fadeTransitionStyles = {
+    entering: { opacity: 1 },
+    entered: { opacity: 1 },
+    exiting: { opacity: 0 },
+    exited: { opacity: 0 },
+    unmounted: {},
+  };
+  return (
+    <>
+      <button
+        ref={reference}
+        className="h-10 w-10 rounded-full bg-slate-200 font-bold"
+        {...getReferenceProps()}
+      >
+        {user.name.at(0)}
+      </button>
+      <FloatingPortal id="z-1">
+        <Transition
+          in={isOpen}
+          timeout={200}
+          nodeRef={refs.floating}
+          unmountOnExit
+        >
+          {(state) => (
+            <FloatingFocusManager context={context}>
+              <div
+                ref={floating}
+                className="flex w-52 flex-col justify-center gap-y-2 overflow-hidden rounded border border-slate-200 bg-white p-3 opacity-0 shadow transition-opacity duration-200 ease-out"
+                style={{
+                  position: strategy,
+                  top: y ?? 0,
+                  left: x ?? 0,
+                  ...fadeTransitionStyles[state],
+                }}
+                {...getFloatingProps()}
+              >
+                <div
+                  className="m-auto grid h-20 w-20 place-content-center rounded-full bg-slate-200 font-bold"
+                  {...getReferenceProps()}
+                >
+                  {user.name.at(0)}
+                </div>
+                <div className="text-center font-bold">{user.name}</div>
+                <Link to="profile">
+                  <Button variant="text" className="w-full">
+                    Go to profile
+                  </Button>
+                </Link>
+                <Form action="logout" method="post">
+                  <Button
+                    color="danger"
+                    className="w-full"
+                    name="_action"
+                    value="logout"
+                  >
+                    {transition.state === "submitting" &&
+                    transition.submission.formData.get("_action") === "logout"
+                      ? "Logging out..."
+                      : "Log out"}
+                  </Button>
+                </Form>
+              </div>
+            </FloatingFocusManager>
+          )}
+        </Transition>
+      </FloatingPortal>
+    </>
+  );
+}
+
+export default function Index() {
   return (
     <>
       <header className="sticky top-0 flex h-16 items-center justify-between bg-white px-3 shadow-md">
@@ -143,14 +237,7 @@ export default function Index() {
           <Menu />
           <span className="mb-3 text-2xl font-bold">Family History</span>
         </div>
-        <Form action="logout" method="post">
-          <Button variant="text" size="small" name="_action" value="logout">
-            {transition.state === "submitting" &&
-            transition.submission.formData.get("_action") === "logout"
-              ? "Logging out..."
-              : "Log out"}
-          </Button>
-        </Form>
+        <Avatar />
       </header>
       <div className="mt-5 px-3">
         <Outlet />
