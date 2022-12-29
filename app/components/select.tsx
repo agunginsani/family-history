@@ -167,6 +167,8 @@ export const Select = React.forwardRef<HTMLInputElement, SelectProps>(
                     className={clsx("rounded p-2 text-left", {
                       "bg-blue-50": activeIndex === index,
                     })}
+                    role="option"
+                    aria-selected={index === selectedIndex}
                     tabIndex={index === activeIndex ? 0 : -1}
                     {...getItemProps({
                       onClick: () => handleItemSelect(index),
