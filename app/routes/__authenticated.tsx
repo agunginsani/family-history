@@ -20,6 +20,7 @@ import {
   useTransition,
 } from "@remix-run/react";
 import * as React from "react";
+import { useMediaQuery } from "react-responsive";
 import { Transition } from "react-transition-group";
 import { Button } from "~/components";
 import { session } from "~/utils/cookies.server";
@@ -52,6 +53,8 @@ function Menu() {
     useDismiss(context),
   ]);
 
+  const isMediumScreen = useMediaQuery({ minWidth: 768 });
+
   React.useEffect(() => {
     setIsOpen(false);
   }, [location.pathname]);
@@ -72,11 +75,37 @@ function Menu() {
     unmounted: {},
   };
 
+  const list = (
+    <ul className="grid gap-y-2">
+      <li>
+        <Link to="">
+          <Button variant="text" className="w-full text-left">
+            Home
+          </Button>
+        </Link>
+      </li>
+      <li>
+        <Link to="users">
+          <Button variant="text" className="w-full text-left">
+            User
+          </Button>
+        </Link>
+      </li>
+      <li>
+        <Link to="sessions">
+          <Button variant="text" className="w-full text-left">
+            Session
+          </Button>
+        </Link>
+      </li>
+    </ul>
+  );
+
   return (
     <>
       <button
         ref={reference}
-        className="mr-2 rounded border-2 p-2 hover:bg-gray-50"
+        className="mr-2 rounded border-2 p-2 hover:bg-gray-50 md:hidden"
         {...getReferenceProps()}
       >
         <img
@@ -86,63 +115,49 @@ function Menu() {
           alt="Toggle menu"
         />
       </button>
-      <FloatingPortal id="z-1">
-        <Transition
-          in={isOpen}
-          nodeRef={overlayRef}
-          timeout={200}
-          unmountOnExit
-        >
-          {(state) => (
-            <FloatingOverlay
-              ref={overlayRef}
-              className="fixed left-0 top-0 z-10 h-screen w-screen bg-black opacity-0 transition-opacity duration-200 ease-in-out"
-              style={fadeTransitionStyles[state]}
-              lockScroll
-            />
-          )}
-        </Transition>
-        <Transition
-          in={isOpen}
-          nodeRef={refs.floating}
-          timeout={200}
-          unmountOnExit
-        >
-          {(state) => (
-            <div
-              aria-modal="true"
-              className="fixed left-0 top-0 z-20 h-screen w-64 bg-white p-3 opacity-0 transition-all duration-200 ease-in-out"
-              ref={floating}
-              role="dialog"
-              style={slideTransitionStyles[state]}
-              {...getFloatingProps()}
+      <FloatingPortal id={isMediumScreen ? "z-0" : "z-1"}>
+        {!isMediumScreen ? (
+          <>
+            <Transition
+              in={isOpen}
+              nodeRef={overlayRef}
+              timeout={200}
+              unmountOnExit
             >
-              <ul className="grid gap-y-2">
-                <li>
-                  <Link to="">
-                    <Button variant="text" className="w-full text-left">
-                      Home
-                    </Button>
-                  </Link>
-                </li>
-                <li>
-                  <Link to="users">
-                    <Button variant="text" className="w-full text-left">
-                      User
-                    </Button>
-                  </Link>
-                </li>
-                <li>
-                  <Link to="sessions">
-                    <Button variant="text" className="w-full text-left">
-                      Session
-                    </Button>
-                  </Link>
-                </li>
-              </ul>
-            </div>
-          )}
-        </Transition>
+              {(state) => (
+                <FloatingOverlay
+                  ref={overlayRef}
+                  className="fixed left-0 top-0 z-10 h-screen w-screen bg-black opacity-0 transition-opacity duration-200 ease-in-out"
+                  style={fadeTransitionStyles[state]}
+                  lockScroll
+                />
+              )}
+            </Transition>
+            <Transition
+              in={isOpen}
+              nodeRef={refs.floating}
+              timeout={200}
+              unmountOnExit
+            >
+              {(state) => (
+                <div
+                  aria-modal="true"
+                  className="fixed left-0 top-0 z-20 h-screen w-64 bg-white p-3 opacity-0 transition-all duration-200 ease-in-out"
+                  ref={floating}
+                  role="dialog"
+                  style={slideTransitionStyles[state]}
+                  {...getFloatingProps()}
+                >
+                  {list}
+                </div>
+              )}
+            </Transition>
+          </>
+        ) : (
+          <div className="fixed left-0 bottom-0 z-0 h-[calc(100vh_-_64px)] w-64 bg-white p-3 shadow">
+            {list}
+          </div>
+        )}
       </FloatingPortal>
     </>
   );
@@ -237,14 +252,14 @@ function Avatar() {
 export default function Authenticated() {
   return (
     <>
-      <header className="sticky top-0 flex h-16 items-center justify-between bg-white px-3 shadow-md">
+      <header className="sticky top-0 z-10 flex h-16 items-center justify-between bg-white px-3 shadow-md">
         <div>
           <Menu />
           <span className="mb-3 text-2xl font-bold">Family History</span>
         </div>
         <Avatar />
       </header>
-      <div className="mt-5 px-3">
+      <div className="p-3 md:ml-64">
         <Outlet />
       </div>
     </>

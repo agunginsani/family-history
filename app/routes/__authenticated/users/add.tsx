@@ -65,7 +65,7 @@ export default function Add() {
   }, [response?.type]);
 
   return (
-    <main className="mx-auto mb-5 max-w-lg rounded bg-white p-4 shadow">
+    <main className="mb-3 rounded bg-white p-4 shadow">
       <h1 className="mb-3 text-2xl font-bold">Add User</h1>
       <Form ref={formRef} className="grid gap-y-2" method="post">
         <input type="hidden" name="_action" value="add user" />

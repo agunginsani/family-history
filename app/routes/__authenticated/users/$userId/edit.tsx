@@ -67,7 +67,7 @@ export default function Edit() {
     transition.state === "submitting" &&
     transition.submission.formData.get("_action") === "edit user";
   return (
-    <main className="mx-auto mb-5 max-w-lg rounded bg-white p-4 shadow">
+    <main className="mb-3 rounded bg-white p-4 shadow">
       <h1 className="mb-3 text-2xl font-bold">Edit User</h1>
       <Form ref={formRef} className="grid gap-y-2" method="post">
         <input type="hidden" name="_action" value="edit user" />

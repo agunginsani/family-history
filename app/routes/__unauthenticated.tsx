@@ -10,6 +10,6 @@ export async function loader({ request }: LoaderArgs) {
   return null;
 }
 
-export default function Index() {
+export default function Unauthenticated() {
   return <Outlet />;
 }
