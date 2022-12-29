@@ -76,7 +76,7 @@ export const Select = React.forwardRef<HTMLInputElement, SelectProps>(
         }),
       ]);
 
-    const expandedTransitionStyles = {
+    const fadeTransitionStyles = {
       entering: { opacity: 1 },
       entered: { opacity: 1 },
       exiting: { opacity: 0 },
@@ -149,12 +149,12 @@ export const Select = React.forwardRef<HTMLInputElement, SelectProps>(
             {(state) => (
               <div
                 ref={floating}
-                className="grid overflow-hidden rounded bg-white opacity-0 shadow-lg transition-opacity duration-200 ease-out"
+                className="grid overflow-hidden rounded border-slate-200 bg-white opacity-0 shadow transition-opacity duration-200 ease-out"
                 style={{
                   position: strategy,
                   top: y ?? 0,
                   left: x ?? 0,
-                  ...expandedTransitionStyles[state],
+                  ...fadeTransitionStyles[state],
                 }}
                 {...getFloatingProps()}
               >
