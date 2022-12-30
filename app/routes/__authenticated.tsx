@@ -28,7 +28,8 @@ import { session } from "~/utils/cookies.server";
 export async function loader({ request }: LoaderArgs) {
   const cookie = request.headers.get("Cookie");
   try {
-    return await session.verify(cookie);
+    const user = await session.verify(cookie);
+    return { name: user.name, initial: user.name.charAt(0) };
   } catch (error) {
     throw redirect("/login", {
       headers: {
@@ -193,7 +194,7 @@ function Avatar() {
         className="h-10 w-10 rounded-full bg-slate-200 font-bold"
         {...getReferenceProps()}
       >
-        {user.name.at(0)}
+        {user.initial}
       </button>
       <FloatingPortal id="z-1">
         <Transition
@@ -219,7 +220,7 @@ function Avatar() {
                   className="m-auto grid h-20 w-20 place-content-center rounded-full bg-slate-200 font-bold"
                   {...getReferenceProps()}
                 >
-                  {user.name.at(0)}
+                  {user.initial}
                 </div>
                 <div className="text-center font-bold">{user.name}</div>
                 <Link to="profile">
