@@ -30,7 +30,7 @@ export default function Index() {
         <thead>
           <tr>
             <th className="border p-2">Email</th>
-            <th className="border p-2">Created at</th>
+            <th className="whitespace-nowrap border p-2">Created at</th>
             <th className="border p-2">Action</th>
           </tr>
         </thead>

@@ -71,6 +71,9 @@ export default function Index() {
                       : "Delete"}
                   </Button>
                 </Form>
+                <Link to={`${user.id}/edit`}>
+                  <Button variant="text">Edit</Button>
+                </Link>
               </td>
             </tr>
           ))}

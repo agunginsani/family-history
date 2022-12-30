@@ -6,7 +6,7 @@ export function links(): ReturnType<LinksFunction> {
   return [{ rel: "stylesheet", href: styles }];
 }
 
-export default function App() {
+export default function Root() {
   return (
     <html>
       <head>
