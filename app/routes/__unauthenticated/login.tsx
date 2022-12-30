@@ -7,6 +7,17 @@ import { session } from "~/utils/cookies.server";
 import { CredentialsError, login } from "~/model/user.server";
 import uaParser from "ua-parser-js";
 
+function formatUserAgent(
+  general: string | undefined,
+  detail: string | undefined
+) {
+  const result = `${general ?? ""} (${detail ?? ""})`
+    .replace(/\(\)/, "")
+    .trim();
+  if (result === "") return "Unknown";
+  return result;
+}
+
 export async function action({ request }: ActionArgs) {
   const formData = await request.formData();
   const email = z.string().email().parse(formData.get("email"));
@@ -17,9 +28,9 @@ export async function action({ request }: ActionArgs) {
     const data = await login({
       email,
       password,
-      browser: `${ua.browser.name ?? ""} (${ua.browser.version ?? ""})`,
-      os: `${ua.os.name ?? ""} (${ua.os.version ?? ""})`,
-      device: `${ua.device.model ?? ""} (${ua.device.vendor ?? ""})`,
+      browser: formatUserAgent(ua.browser.name, ua.browser.version),
+      os: formatUserAgent(ua.os.name, ua.os.version),
+      device: formatUserAgent(ua.device.vendor, ua.device.model),
     });
     token = data.token;
   } catch (error) {
