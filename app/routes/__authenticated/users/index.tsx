@@ -43,14 +43,17 @@ export default function Index() {
           {users.map((user) => (
             <tr key={user.id}>
               <td className="whitespace-nowrap border p-2">{user.name}</td>
-              <td className="border p-2 text-blue-400 underline">
-                <Link to={`${user.id}/edit`}>{user.email}</Link>
-              </td>
-              <td className="border p-2">
+              <td className="border p-2">{user.email}</td>
+              <td className="border p-2 text-center">
                 {formatInTimeZone(user.dob, "Asia/Jakarta", "d MMM yyyy")}
               </td>
               <td className="border p-2 capitalize">{user.gender}</td>
               <td className="min-w-[120px] border p-2 text-center">
+                <Link to={`${user.id}/edit`}>
+                  <Button variant="text" className="w-full">
+                    Edit
+                  </Button>
+                </Link>
                 <Form method="post">
                   <input
                     type="hidden"
@@ -63,6 +66,7 @@ export default function Index() {
                     variant="text"
                     color="danger"
                     size="small"
+                    className="w-full"
                   >
                     {transition.state === "submitting" &&
                     transition.submission.formData.get("_action") ===
@@ -71,9 +75,6 @@ export default function Index() {
                       : "Delete"}
                   </Button>
                 </Form>
-                <Link to={`${user.id}/edit`}>
-                  <Button variant="text">Edit</Button>
-                </Link>
               </td>
             </tr>
           ))}

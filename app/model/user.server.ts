@@ -71,21 +71,26 @@ export class CredentialsError extends Error {
 type LoginDTO = {
   email: string;
   password: string;
+  browser: string;
+  os: string;
+  device: string;
 };
 
-export async function login(payload: LoginDTO) {
-  const token = sign(payload, JWT_SECRET);
-  const { id: userId, password } = await prisma.user
+export async function login({ email, password, ...ua }: LoginDTO) {
+  const token = sign({ email, password }, JWT_SECRET);
+  const user = await prisma.user
     .findFirstOrThrow({
-      where: { email: payload.email },
+      where: { email },
     })
     .catch(() => {
       throw new CredentialsError();
     });
-  if (hashPassword(payload.password) !== password) {
+  if (hashPassword(password) !== user.password) {
     throw new CredentialsError();
   }
-  return prisma.session.create({ data: { token, userId } });
+  return prisma.session.create({
+    data: { token, userId: user.id, ...ua },
+  });
 }
 
 export async function logout(token: string) {

@@ -5,33 +5,40 @@ import { z } from "zod";
 import { Button, Input } from "~/components";
 import { session } from "~/utils/cookies.server";
 import { CredentialsError, login } from "~/model/user.server";
+import uaParser from "ua-parser-js";
 
 export async function action({ request }: ActionArgs) {
   const formData = await request.formData();
   const email = z.string().email().parse(formData.get("email"));
   const password = z.string().parse(formData.get("password"));
+  const ua = uaParser(request.headers.get("user-agent") ?? undefined);
+  let token = "";
   try {
-    const data = await login({ email, password });
-    return redirect("/", {
-      headers: {
-        "Set-Cookie": await session.serialize(data.token),
-      },
+    const data = await login({
+      email,
+      password,
+      browser: `${ua.browser.name ?? ""} (${ua.browser.version ?? ""})`,
+      os: `${ua.os.name ?? ""} (${ua.os.version ?? ""})`,
+      device: `${ua.device.model ?? ""} (${ua.device.vendor ?? ""})`,
     });
+    token = data.token;
   } catch (error) {
     let message = "Something went wrong!";
     if (error instanceof CredentialsError) message = error.message;
+    else console.error(error);
     return { message };
   }
+  throw redirect("/", {
+    headers: {
+      "Set-Cookie": await session.serialize(token),
+    },
+  });
 }
 
 export default function Login() {
   const data = useActionData<ReturnType<typeof action>>();
   const transition = useTransition();
-  const error =
-    data &&
-    "message" in data &&
-    transition.state !== "submitting" &&
-    data.message;
+  const error = data && transition.state !== "submitting" && data.message;
   return (
     <div className="grid h-screen place-content-center">
       <main className="w-80 rounded bg-white p-4 shadow">

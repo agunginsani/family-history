@@ -30,7 +30,10 @@ export default function Index() {
         <thead>
           <tr>
             <th className="border p-2">Email</th>
-            <th className="whitespace-nowrap border p-2">Created at</th>
+            <th className="border p-2">OS</th>
+            <th className="border p-2">Browser</th>
+            <th className="border p-2">Device</th>
+            <th className="border p-2">Created at</th>
             <th className="border p-2">Action</th>
           </tr>
         </thead>
@@ -38,7 +41,12 @@ export default function Index() {
           {sessions.map((session) => (
             <tr key={session.id}>
               <td className="border p-2">{session.user.email}</td>
-              <td className="border p-2 text-center">
+              <td className="whitespace-nowrap border p-2">{session.os}</td>
+              <td className="whitespace-nowrap border p-2">
+                {session.browser}
+              </td>
+              <td className="whitespace-nowrap border p-2">{session.device}</td>
+              <td className="whitespace-nowrap border p-2 text-center">
                 {formatInTimeZone(
                   session.createdAt,
                   "Asia/Jakarta",

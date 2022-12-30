@@ -1,7 +1,10 @@
 import { prisma } from "~/utils/db.server";
 
 export async function getSessions() {
-  const sessions = await prisma.session.findMany({ include: { user: true } });
+  const sessions = await prisma.session.findMany({
+    include: { user: true },
+    orderBy: { createdAt: "desc" },
+  });
   return sessions;
 }
 
