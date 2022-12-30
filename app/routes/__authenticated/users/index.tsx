@@ -50,7 +50,7 @@ export default function Index() {
               <td className="border p-2 capitalize">{user.gender}</td>
               <td className="min-w-[120px] border p-2 text-center">
                 <Link to={`${user.id}/edit`}>
-                  <Button variant="text" className="w-full">
+                  <Button variant="text" size="small" className="w-full">
                     Edit
                   </Button>
                 </Link>
