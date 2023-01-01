@@ -19,45 +19,34 @@ export const AddOrEditUserDTOSchema = z.object({
 
 export type AddUserDTO = z.infer<typeof AddOrEditUserDTOSchema>;
 
-export async function addUser({ roleId, ...payload }: AddUserDTO) {
-  const user = await prisma.user.create({
+export function addUser(payload: AddUserDTO) {
+  return prisma.user.create({
     data: {
-      roleId: Number(roleId),
       password: hashPassword("P@ssw0rd"),
       ...payload,
     },
   });
-  return user;
 }
-export async function editUser(id: string, { roleId, ...payload }: AddUserDTO) {
-  const user = await prisma.user.update({
-    where: {
-      id: Number(id),
-    },
-    data: {
-      roleId: Number(roleId),
-      ...payload,
-    },
+export function editUser(id: string, payload: AddUserDTO) {
+  return prisma.user.update({
+    where: { id },
+    data: payload,
   });
-  return user;
 }
 
-export async function getUser(id: string) {
-  const users = await prisma.user.findFirstOrThrow({
-    where: { id: Number(id) },
+export function getUser(id: string) {
+  return prisma.user.findFirstOrThrow({
+    where: { id },
     include: { role: true },
   });
-  return users;
 }
 
-export async function getUsers() {
-  const users = await prisma.user.findMany({ orderBy: { id: "asc" } });
-  return users;
+export function getUsers() {
+  return prisma.user.findMany({ orderBy: { id: "asc" } });
 }
 
-export async function deleteUser(id: string) {
-  const user = prisma.user.delete({ where: { id: Number(id) } });
-  return user;
+export function deleteUser(id: string) {
+  return prisma.user.delete({ where: { id } });
 }
 
 export class CredentialsError extends Error {
@@ -85,19 +74,21 @@ export async function login({ email, password, ...ua }: LoginDTO) {
     .catch(() => {
       throw new CredentialsError();
     });
+
   if (hashPassword(password) !== user.password) {
     throw new CredentialsError();
   }
+
   return prisma.session.create({
-    data: { token, userId: user.id, ...ua },
+    data: { token, email, ...ua },
   });
 }
 
-export async function logout(token: string) {
+export function logout(token: string) {
   return prisma.session.delete({ where: { token } });
 }
 
-export async function getAuthorizedUser(token: string) {
+export function getAuthorizedUser(token: string) {
   verify(token, JWT_SECRET);
   return prisma.user.findFirstOrThrow({
     where: { sessions: { some: { token } } },
