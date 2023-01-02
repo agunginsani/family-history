@@ -8,9 +8,9 @@ export async function getSessions() {
   return sessions;
 }
 
-export async function deleteSession(id: string) {
+export async function deleteSession(token: string) {
   const session = prisma.session.delete({
-    where: { id: Number(id) },
+    where: { token },
   });
   return session;
 }

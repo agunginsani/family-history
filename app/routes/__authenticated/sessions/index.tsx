@@ -39,7 +39,7 @@ export default function Index() {
         </thead>
         <tbody>
           {sessions.map((session) => (
-            <tr key={session.id}>
+            <tr key={session.token}>
               <td className="border p-2">{session.user.email}</td>
               <td className="whitespace-nowrap border p-2">{session.os}</td>
               <td className="whitespace-nowrap border p-2">
@@ -58,18 +58,18 @@ export default function Index() {
                   <input
                     type="hidden"
                     name="_action"
-                    value={`delete ${session.id}`}
+                    value={`delete ${session.token}`}
                   />
                   <Button
                     name="id"
-                    value={session.id}
+                    value={session.token}
                     variant="text"
                     color="danger"
                     size="small"
                   >
                     {transition.state === "submitting" &&
                     transition.submission.formData.get("_action") ===
-                      `delete ${session.id}`
+                      `delete ${session.token}`
                       ? "Deleting..."
                       : "Delete"}
                   </Button>

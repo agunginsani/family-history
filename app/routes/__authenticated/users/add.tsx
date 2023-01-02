@@ -51,8 +51,8 @@ function Label(props: React.ComponentPropsWithoutRef<"label">) {
 
 export default function Add() {
   const transition = useTransition();
-  const roles = useLoaderData<ReturnType<typeof loader>>();
-  const response = useActionData<ReturnType<typeof action>>();
+  const roles = useLoaderData<typeof loader>();
+  const response = useActionData<typeof action>();
   const formRef = React.useRef<HTMLFormElement>(null);
   const isAdding =
     transition.state === "submitting" &&

@@ -23,17 +23,19 @@ import * as React from "react";
 import { useMediaQuery } from "react-responsive";
 import { Transition } from "react-transition-group";
 import { Button } from "~/components";
-import { session } from "~/utils/cookies.server";
+import { getAuthorizedUser } from "~/model/user.server";
+import { destroySession, getSession } from "~/utils/session.server";
 
 export async function loader({ request }: LoaderArgs) {
-  const cookie = request.headers.get("Cookie");
+  const session = await getSession(request.headers.get("Cookie"));
+
   try {
-    const user = await session.verify(cookie);
+    const user = await getAuthorizedUser(await session.get("token"));
     return { name: user.name, initial: user.name.charAt(0) };
   } catch (error) {
     throw redirect("/login", {
       headers: {
-        "Set-Cookie": await session.serialize("", { expires: new Date() }),
+        "Set-Cookie": await destroySession(session),
       },
     });
   }

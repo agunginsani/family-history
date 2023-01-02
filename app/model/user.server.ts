@@ -3,8 +3,6 @@ import { createHash } from "crypto";
 import { sign, verify } from "jsonwebtoken";
 import { z } from "zod";
 
-const JWT_SECRET = "123";
-
 function hashPassword(password: string) {
   return createHash("md5").update(password).digest("hex");
 }
@@ -50,10 +48,10 @@ export function deleteUser(id: string) {
 }
 
 export class CredentialsError extends Error {
-  constructor() {
+  constructor(message?: string) {
     super();
     this.name = "CredentialsError";
-    this.message = "Invalid credentials!";
+    this.message = message ?? "Invalid credentials!";
   }
 }
 
@@ -66,7 +64,11 @@ type LoginDTO = {
 };
 
 export async function login({ email, password, ...ua }: LoginDTO) {
-  const token = sign({ email, password }, JWT_SECRET);
+  if (process.env.JWT_SECRET === undefined) {
+    throw new CredentialsError("Missing `JWT_SECRET`!");
+  }
+
+  const token = sign({ email, password }, process.env.JWT_SECRET);
   const user = await prisma.user
     .findFirstOrThrow({
       where: { email },
@@ -89,7 +91,12 @@ export function logout(token: string) {
 }
 
 export function getAuthorizedUser(token: string) {
-  verify(token, JWT_SECRET);
+  if (process.env.JWT_SECRET === undefined) {
+    throw new CredentialsError("Missing `JWT_SECRET`!");
+  }
+
+  verify(token, process.env.JWT_SECRET);
+
   return prisma.user.findFirstOrThrow({
     where: { sessions: { some: { token } } },
   });

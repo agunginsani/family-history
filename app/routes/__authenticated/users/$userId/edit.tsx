@@ -60,8 +60,8 @@ export async function action({ request, params }: ActionArgs) {
 
 export default function Edit() {
   const transition = useTransition();
-  const [user, roles] = useLoaderData<ReturnType<typeof loader>>();
-  const response = useActionData<ReturnType<typeof action>>();
+  const [user, roles] = useLoaderData<typeof loader>();
+  const response = useActionData<typeof action>();
   const formRef = React.useRef<HTMLFormElement>(null);
   const isEditing =
     transition.state === "submitting" &&

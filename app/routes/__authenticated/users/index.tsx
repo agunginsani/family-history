@@ -17,7 +17,7 @@ export async function action({ request }: ActionArgs) {
 }
 
 export default function Index() {
-  const users = useLoaderData<ReturnType<typeof loader>>();
+  const users = useLoaderData<typeof loader>();
   const transition = useTransition();
   return (
     <main className="mx-auto max-w-screen-lg overflow-auto rounded bg-white p-4 shadow">

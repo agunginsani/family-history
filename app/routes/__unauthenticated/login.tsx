@@ -1,11 +1,11 @@
-import type { ActionArgs } from "@remix-run/node";
-import { redirect } from "@remix-run/node";
-import { Form, useActionData, useTransition } from "@remix-run/react";
+import { json, redirect } from "@remix-run/node";
+import type { ActionArgs, LoaderArgs } from "@remix-run/node";
+import { Form, useLoaderData, useTransition } from "@remix-run/react";
 import { z } from "zod";
 import { Button, Input } from "~/components";
-import { session } from "~/utils/cookies.server";
 import { CredentialsError, login } from "~/model/user.server";
 import uaParser from "ua-parser-js";
+import { commitSession, getSession } from "~/utils/session.server";
 
 function formatUserAgent(
   general: string | undefined,
@@ -18,12 +18,24 @@ function formatUserAgent(
   return result;
 }
 
+export async function loader({ request }: LoaderArgs) {
+  const session = await getSession(request.headers.get("Cookie"));
+
+  if (session.has("token")) {
+    throw redirect("/");
+  }
+
+  const data = { error: session.get("error") as string };
+  return json(data);
+}
+
 export async function action({ request }: ActionArgs) {
+  const session = await getSession(request.headers.get("Cookie"));
   const formData = await request.formData();
   const email = z.string().email().parse(formData.get("email"));
   const password = z.string().parse(formData.get("password"));
   const ua = uaParser(request.headers.get("user-agent") ?? undefined);
-  let token = "";
+
   try {
     const data = await login({
       email,
@@ -32,24 +44,31 @@ export async function action({ request }: ActionArgs) {
       os: formatUserAgent(ua.os.name, ua.os.version),
       device: formatUserAgent(ua.device.vendor, ua.device.model),
     });
-    token = data.token;
+    session.set("token", data.token);
+    return redirect("/", {
+      headers: {
+        "Set-Cookie": await commitSession(session),
+      },
+    });
   } catch (error) {
     let message = "Something went wrong!";
+
     if (error instanceof CredentialsError) message = error.message;
     else console.error(error);
-    return { message };
+
+    session.flash("error", message);
+
+    return redirect("/login", {
+      headers: {
+        "Set-Cookie": await commitSession(session),
+      },
+    });
   }
-  throw redirect("/", {
-    headers: {
-      "Set-Cookie": await session.serialize(token),
-    },
-  });
 }
 
 export default function Login() {
-  const data = useActionData<ReturnType<typeof action>>();
+  const { error } = useLoaderData<typeof loader>();
   const transition = useTransition();
-  const error = data && transition.state !== "submitting" && data.message;
   return (
     <div className="grid h-screen place-content-center">
       <main className="w-80 rounded bg-white p-4 shadow">
