@@ -9,20 +9,24 @@ async function main() {
     data: {
       email: "agunginsanialam@gmail.com",
       name: "Agung Insani Alam",
-      dob: new Date('1993-1-4').toISOString(),
+      dob: new Date("1993-1-4").toISOString(),
       gender: "male",
       password,
-      role: { create: { name: "ADMIN" } },
+      role: {
+        create: { name: "ADMIN" },
+      },
     },
   });
   await prisma.user.create({
     data: {
       email: "izzatijah@gmail.com",
       name: "Izzati Choirina Fajrin",
-      dob: new Date('1994-1-18').toISOString(),
+      dob: new Date("1994-1-18").toISOString(),
       gender: "female",
       password,
-      role: { create: { name: "USER" } },
+      role: {
+        create: { name: "USER" },
+      },
     },
   });
 }

@@ -7,7 +7,7 @@ function hashPassword(password: string) {
   return createHash("md5").update(password).digest("hex");
 }
 
-export const AddOrEditUserDTOSchema = z.object({
+export const AddUserDTOSchema = z.object({
   email: z.string().email(),
   name: z.string(),
   roleId: z.string(),
@@ -15,9 +15,19 @@ export const AddOrEditUserDTOSchema = z.object({
   gender: z.union([z.literal("male"), z.literal("female")]),
 });
 
-export type AddUserDTO = z.infer<typeof AddOrEditUserDTOSchema>;
+export const EditUserDTOSchema = z.object({
+  email: z.string().email(),
+  name: z.string(),
+  roleId: z.string(),
+  dob: z.string().datetime(),
+  gender: z.union([z.literal("male"), z.literal("female")]),
+});
 
-export function addUser(payload: AddUserDTO) {
+export type AddUserDTO = z.infer<typeof AddUserDTOSchema>;
+
+export type EditUserDTO = z.infer<typeof EditUserDTOSchema>;
+
+export async function addUser(payload: AddUserDTO) {
   return prisma.user.create({
     data: {
       password: hashPassword("P@ssw0rd"),
@@ -25,7 +35,8 @@ export function addUser(payload: AddUserDTO) {
     },
   });
 }
-export function editUser(id: string, payload: AddUserDTO) {
+
+export function editUser(id: string, payload: EditUserDTO) {
   return prisma.user.update({
     where: { id },
     data: payload,
@@ -90,7 +101,7 @@ export function logout(token: string) {
   return prisma.session.delete({ where: { token } });
 }
 
-export function getAuthorizedUser(token: string) {
+export function verifyUser(token: string) {
   if (process.env.JWT_SECRET === undefined) {
     throw new CredentialsError("Missing `JWT_SECRET`!");
   }

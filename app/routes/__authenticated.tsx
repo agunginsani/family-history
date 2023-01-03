@@ -23,14 +23,14 @@ import * as React from "react";
 import { useMediaQuery } from "react-responsive";
 import { Transition } from "react-transition-group";
 import { Button } from "~/components";
-import { getAuthorizedUser } from "~/model/user.server";
+import { verifyUser } from "~/model/user.server";
 import { destroySession, getSession } from "~/utils/session.server";
 
 export async function loader({ request }: LoaderArgs) {
   const session = await getSession(request.headers.get("Cookie"));
 
   try {
-    const user = await getAuthorizedUser(await session.get("token"));
+    const user = await verifyUser(await session.get("token"));
     return { name: user.name, initial: user.name.charAt(0) };
   } catch (error) {
     throw redirect("/login", {
@@ -98,6 +98,13 @@ function Menu() {
         <Link to="sessions">
           <Button variant="text" className="w-full text-left">
             Session
+          </Button>
+        </Link>
+      </li>
+      <li>
+        <Link to="menus">
+          <Button variant="text" className="w-full text-left">
+            Menu
           </Button>
         </Link>
       </li>

@@ -18,7 +18,7 @@ import {
   SelectOptionsSchema,
 } from "~/components";
 import { getRoles } from "~/model/role.server";
-import { editUser, AddOrEditUserDTOSchema, getUser } from "~/model/user.server";
+import { editUser, EditUserDTOSchema, getUser } from "~/model/user.server";
 
 export async function loader({ params }: LoaderArgs) {
   if (params.userId === undefined) throw new Error("User ID cannot be empty!");
@@ -36,7 +36,7 @@ export async function action({ request, params }: ActionArgs) {
   const formData = await request.formData();
   const dobString = formData.get("dob")?.toString();
   dobString && formData.set("dob", new Date(dobString).toISOString());
-  const parsedFormDataObject = AddOrEditUserDTOSchema.parse(
+  const parsedFormDataObject = EditUserDTOSchema.parse(
     Object.fromEntries(formData)
   );
   return editUser(params.userId, parsedFormDataObject)

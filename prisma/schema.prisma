@@ -11,16 +11,15 @@ datasource db {
 }
 
 model User {
-  id        String    @id @default(uuid())
-  email     String    @unique
-  password  String
-  name      String
-  gender    String
-  dob       DateTime
-  createdAt DateTime  @default(now())
-  sessions  Session[]
-  role      Role      @relation(fields: [roleId], references: [id])
-  roleId    String
+  id       String    @id @default(uuid())
+  email    String    @unique
+  password String
+  name     String
+  gender   String
+  dob      DateTime
+  sessions Session[]
+  role     Role      @relation(fields: [roleId], references: [id])
+  roleId   String
 }
 
 model Session {
@@ -34,24 +33,45 @@ model Session {
 }
 
 model Role {
-  id       String     @id @default(uuid())
-  name     String
-  roleMenu RoleMenu[]
-  user     User[]
+  id             String           @id @default(uuid())
+  name           String
+  roleMenu       RoleMenu[]
+  user           User[]
+  rolePermission RolePermission[]
 }
 
 model Menu {
-  id       String     @id @default(uuid())
-  name     String
-  path     String
-  roleMenu RoleMenu[]
+  id         String       @id @default(uuid())
+  name       String
+  path       String
+  roleMenu   RoleMenu[]
+  permission Permission[]
 }
 
 model RoleMenu {
+  id     String @id @default(uuid())
   role   Role   @relation(fields: [roleId], references: [id])
   roleId String
   menu   Menu   @relation(fields: [menuId], references: [id])
   menuId String
 
   @@unique([roleId, menuId])
+}
+
+model Permission {
+  id             String           @id @default(uuid())
+  name           String
+  menu           Menu             @relation(fields: [menuId], references: [id])
+  menuId         String
+  rolePermission RolePermission[]
+}
+
+model RolePermission {
+  id           String     @id @default(uuid())
+  role         Role       @relation(fields: [roleId], references: [id])
+  roleId       String
+  permission   Permission @relation(fields: [permissionId], references: [id])
+  permissionId String
+
+  @@unique([roleId, permissionId])
 }
