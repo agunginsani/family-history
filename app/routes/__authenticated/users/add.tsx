@@ -69,16 +69,16 @@ export default function Add() {
   return (
     <main className="mb-3 rounded bg-white p-4 shadow">
       <h1 className="mb-3 text-2xl font-bold">Add User</h1>
+      <div
+        className={clsx("mb-3 flex h-6 items-center font-semibold", {
+          "text-green-500": response?.type === "success",
+          "text-red-500": response?.type === "error",
+        })}
+        role="alert"
+      >
+        {!isAdding && response?.message}
+      </div>
       <Form ref={formRef} className="grid gap-y-2" method="post">
-        <div
-          className={clsx("flex h-6 items-center font-semibold", {
-            "text-green-500": response?.type === "success",
-            "text-red-500": response?.type === "error",
-          })}
-          role="alert"
-        >
-          {!isAdding && response?.message}
-        </div>
         <div className="grid gap-y-1">
           <Label htmlFor="name">Name</Label>
           <Input

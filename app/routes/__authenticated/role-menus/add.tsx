@@ -1,24 +1,32 @@
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime";
 import type { ActionArgs } from "@remix-run/node";
-import { Form, Link, useActionData, useTransition } from "@remix-run/react";
+import {
+  Form,
+  Link,
+  useActionData,
+  useLoaderData,
+  useTransition,
+} from "@remix-run/react";
 import clsx from "clsx";
 import * as React from "react";
-import { Input, Button } from "~/components";
-import { addMenu, AddMenuDTOSchema } from "~/model/menu.server";
+import { Button, Select } from "~/components";
+import { getMenus } from "~/model/menu.server";
+import { addRoleMenu, AddRoleMenuDTOSchema } from "~/model/role-menu.server";
+import { getRoles } from "~/model/role.server";
 
 export async function loader() {
-  return null;
+  return Promise.all([getMenus(), getRoles()]);
 }
 
 export async function action({ request }: ActionArgs) {
   const formData = await request.formData();
-  const parsedFormDataObject = AddMenuDTOSchema.parse(
+  const parsedFormDataObject = AddRoleMenuDTOSchema.parse(
     Object.fromEntries(formData)
   );
-  return addMenu(parsedFormDataObject)
-    .then((menu) => ({
+  return addRoleMenu(parsedFormDataObject)
+    .then((roleMenu) => ({
       type: "success" as const,
-      message: `${menu.name} has been added!`,
+      message: `${roleMenu.id} has been added!`,
     }))
     .catch((error) => {
       if (error instanceof PrismaClientKnownRequestError) {
@@ -41,21 +49,22 @@ export default function Add() {
   const transition = useTransition();
   const response = useActionData<typeof action>();
   const formRef = React.useRef<HTMLFormElement>(null);
-  const inputNameRef = React.useRef<HTMLInputElement>(null);
+  const inputRoleRef = React.useRef<HTMLInputElement>(null);
   const isAdding =
     transition.state === "submitting" &&
-    transition.submission.formData.get("_action") === "add menu";
+    transition.submission.formData.get("_action") === "add role menu";
+  const [menus, roles] = useLoaderData<typeof loader>();
 
   React.useEffect(() => {
     if (response?.type === "success" && !isAdding) {
       formRef.current?.reset();
-      inputNameRef.current?.focus();
+      inputRoleRef.current?.focus();
     }
   }, [isAdding, response?.type]);
 
   return (
     <main className="mb-3 rounded bg-white p-4 shadow">
-      <h1 className="mb-3 text-2xl font-bold">Add Menu</h1>
+      <h1 className="mb-3 text-2xl font-bold">Add Role Menu</h1>
       <div
         className={clsx("mb-3 flex h-6 items-center font-semibold", {
           "text-green-500": response?.type === "success",
@@ -67,25 +76,25 @@ export default function Add() {
       </div>
       <Form ref={formRef} className="grid gap-y-2" method="post">
         <div className="grid gap-y-1">
-          <Label htmlFor="name">Name</Label>
-          <Input
-            ref={inputNameRef}
-            id="name"
-            type="text"
-            name="name"
+          <Label htmlFor="role">Role</Label>
+          <Select
+            ref={inputRoleRef}
+            options={roles}
+            id="role"
+            name="roleId"
             required
           />
         </div>
         <div className="grid gap-y-1">
-          <Label htmlFor="email">Path</Label>
-          <Input id="email" type="text" name="path" required />
+          <Label htmlFor="menu">Menu</Label>
+          <Select options={menus} id="menu" name="menuId" required />
         </div>
         <div className="mt-4 flex gap-x-2">
-          <Button value="add menu" name="_action">
+          <Button value="add role menu" name="_action">
             {isAdding ? "Submitting..." : "Submit"}
           </Button>
           {!isAdding && (
-            <Link to="../menus">
+            <Link to="../role-menus">
               <Button variant="text">Cancel</Button>
             </Link>
           )}

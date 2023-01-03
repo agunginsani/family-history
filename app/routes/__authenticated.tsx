@@ -23,6 +23,7 @@ import * as React from "react";
 import { useMediaQuery } from "react-responsive";
 import { Transition } from "react-transition-group";
 import { Button } from "~/components";
+import { getMenusByRole } from "~/model/role-menu.server";
 import { verifyUser } from "~/model/user.server";
 import { destroySession, getSession } from "~/utils/session.server";
 
@@ -31,7 +32,8 @@ export async function loader({ request }: LoaderArgs) {
 
   try {
     const user = await verifyUser(await session.get("token"));
-    return { name: user.name, initial: user.name.charAt(0) };
+    const menus = await getMenusByRole(user.roleId);
+    return { name: user.name, initial: user.name.charAt(0), menus };
   } catch (error) {
     throw redirect("/login", {
       headers: {
@@ -45,6 +47,7 @@ function Menu() {
   const [isOpen, setIsOpen] = React.useState(false);
   const overlayRef = React.useRef<HTMLDivElement>(null);
   const location = useLocation();
+  const { menus } = useLoaderData<typeof loader>();
 
   const { refs, context, reference, floating } = useFloating({
     open: isOpen,
@@ -87,27 +90,15 @@ function Menu() {
           </Button>
         </Link>
       </li>
-      <li>
-        <Link to="users">
-          <Button variant="text" className="w-full text-left">
-            User
-          </Button>
-        </Link>
-      </li>
-      <li>
-        <Link to="sessions">
-          <Button variant="text" className="w-full text-left">
-            Session
-          </Button>
-        </Link>
-      </li>
-      <li>
-        <Link to="menus">
-          <Button variant="text" className="w-full text-left">
-            Menu
-          </Button>
-        </Link>
-      </li>
+      {menus.map((menu) => (
+        <li key={menu.id}>
+          <Link to={menu.path}>
+            <Button variant="text" className="w-full text-left">
+              {menu.name}
+            </Button>
+          </Link>
+        </li>
+      ))}
     </ul>
   );
 

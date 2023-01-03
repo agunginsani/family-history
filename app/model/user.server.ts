@@ -15,15 +15,16 @@ export const AddUserDTOSchema = z.object({
   gender: z.union([z.literal("male"), z.literal("female")]),
 });
 
+export type AddUserDTO = z.infer<typeof AddUserDTOSchema>;
+
 export const EditUserDTOSchema = z.object({
+  id: z.string().uuid(),
   email: z.string().email(),
   name: z.string(),
   roleId: z.string(),
   dob: z.string().datetime(),
   gender: z.union([z.literal("male"), z.literal("female")]),
 });
-
-export type AddUserDTO = z.infer<typeof AddUserDTOSchema>;
 
 export type EditUserDTO = z.infer<typeof EditUserDTOSchema>;
 
@@ -36,7 +37,7 @@ export async function addUser(payload: AddUserDTO) {
   });
 }
 
-export function editUser(id: string, payload: EditUserDTO) {
+export function editUser({ id, ...payload }: EditUserDTO) {
   return prisma.user.update({
     where: { id },
     data: payload,
