@@ -1,5 +1,9 @@
 import { createCookieSessionStorage } from "@remix-run/node";
 
+if (process.env.COOKIE_SECRET === undefined) {
+  throw new Error("Missing `COOKIE_SECRET`");
+}
+
 export const { getSession, commitSession, destroySession } =
   createCookieSessionStorage({
     cookie: {
@@ -8,7 +12,7 @@ export const { getSession, commitSession, destroySession } =
       maxAge: 3.156e7,
       path: "/",
       sameSite: "lax",
-      secrets: ["s3cret1"],
+      secrets: [process.env.COOKIE_SECRET],
       secure: true,
     },
   });
