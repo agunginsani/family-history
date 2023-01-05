@@ -35,6 +35,7 @@ export async function loader({ request }: LoaderArgs) {
     const menus = await getMenusByRole(user.roleId);
     return { name: user.name, initial: user.name.charAt(0), menus };
   } catch (error) {
+    console.error(error);
     throw redirect("/login", {
       headers: {
         "Set-Cookie": await destroySession(session),
