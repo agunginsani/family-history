@@ -9,7 +9,8 @@ export function getMenu(id: string) {
   return prisma.menu.findFirstOrThrow({ where: { id } });
 }
 
-export function deleteMenu(id: string) {
+export async function deleteMenu(id: string) {
+  await prisma.roleMenu.deleteMany({ where: { menuId: id } });
   return prisma.menu.delete({ where: { id } });
 }
 

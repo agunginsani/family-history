@@ -23,21 +23,28 @@ export async function action({ request }: ActionArgs) {
   const parsedFormDataObject = AddRoleMenuDTOSchema.parse(
     Object.fromEntries(formData)
   );
+
   return addRoleMenu(parsedFormDataObject)
     .then((roleMenu) => ({
       type: "success" as const,
-      message: `${roleMenu.id} has been added!`,
+      message: `${roleMenu.role.name} can access ${roleMenu.menu.name}`!,
     }))
     .catch((error) => {
-      if (error instanceof PrismaClientKnownRequestError) {
-        const message = "Something went wrong!";
-        return {
-          type: "error" as const,
-          message,
-        };
+      let message = "Something went wrong!";
+
+      if (
+        error instanceof PrismaClientKnownRequestError &&
+        error.code === "P2002"
+      ) {
+        message = "This rule is already exist!";
+      } else {
+        console.error(error);
       }
-      console.error(error);
-      return null;
+
+      return {
+        type: "error" as const,
+        message,
+      };
     });
 }
 

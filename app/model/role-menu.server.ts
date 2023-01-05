@@ -26,6 +26,7 @@ type AddRoleMenuDTO = z.infer<typeof AddRoleMenuDTOSchema>;
 export function addRoleMenu(payload: AddRoleMenuDTO) {
   return prisma.roleMenu.create({
     data: payload,
+    include: { role: true, menu: true },
   });
 }
 

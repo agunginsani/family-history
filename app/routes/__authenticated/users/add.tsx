@@ -30,18 +30,21 @@ export async function action({ request }: ActionArgs) {
       message: `${user.email} has been added!`,
     }))
     .catch((error) => {
-      if (error instanceof PrismaClientKnownRequestError) {
-        const message =
-          error.code === "P2002"
-            ? "This email has been registered before!"
-            : "Something went wrong!";
-        return {
-          type: "error" as const,
-          message,
-        };
+      let message = "Something went wrong!";
+
+      if (
+        error instanceof PrismaClientKnownRequestError &&
+        error.code === "P2002"
+      ) {
+        message = "This email has been registered before!";
+      } else {
+        console.error(error);
       }
-      console.error(error);
-      return null;
+
+      return {
+        type: "error" as const,
+        message,
+      };
     });
 }
 
