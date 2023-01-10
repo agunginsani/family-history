@@ -1,7 +1,7 @@
 import type { ActionArgs } from "@remix-run/node";
 import { Form, useLoaderData, useTransition } from "@remix-run/react";
 import { formatInTimeZone } from "date-fns-tz";
-import { Button } from "~/components";
+import { Button, Table, TableCell, TableHead } from "~/components";
 import { deleteSession, getSessions } from "~/model/session.server";
 
 export async function loader() {
@@ -26,34 +26,36 @@ export default function Index() {
           Sessions
         </h1>
       </div>
-      <table aria-labelledby="title" className="w-full border-collapse border">
+      <Table aria-labelledby="title">
         <thead>
           <tr>
-            <th className="border p-2">Email</th>
-            <th className="border p-2">OS</th>
-            <th className="border p-2">Browser</th>
-            <th className="border p-2">Device</th>
-            <th className="border p-2">Created at</th>
-            <th className="border p-2">Action</th>
+            <TableHead>Email</TableHead>
+            <TableHead>OS</TableHead>
+            <TableHead>Browser</TableHead>
+            <TableHead>Device</TableHead>
+            <TableHead>Created at</TableHead>
+            <TableHead>Action</TableHead>
           </tr>
         </thead>
         <tbody>
           {sessions.map((session) => (
             <tr key={session.token}>
-              <td className="border p-2">{session.user.email}</td>
-              <td className="whitespace-nowrap border p-2">{session.os}</td>
-              <td className="whitespace-nowrap border p-2">
+              <TableCell>{session.user.email}</TableCell>
+              <TableCell className="whitespace-nowrap">{session.os}</TableCell>
+              <TableCell className="whitespace-nowrap">
                 {session.browser}
-              </td>
-              <td className="whitespace-nowrap border p-2">{session.device}</td>
-              <td className="whitespace-nowrap border p-2 text-center">
+              </TableCell>
+              <TableCell className="whitespace-nowrap">
+                {session.device}
+              </TableCell>
+              <TableCell className="whitespace-nowrap text-center">
                 {formatInTimeZone(
                   session.createdAt,
                   "Asia/Jakarta",
                   "d MMM yyyy HH:mm"
                 )}
-              </td>
-              <td className="min-w-[120px] border p-2 text-center">
+              </TableCell>
+              <TableCell className="text-center">
                 <Form method="post">
                   <input
                     type="hidden"
@@ -66,6 +68,7 @@ export default function Index() {
                     variant="text"
                     color="danger"
                     size="small"
+                    className="w-full"
                   >
                     {transition.state === "submitting" &&
                     transition.submission.formData.get("_action") ===
@@ -74,11 +77,11 @@ export default function Index() {
                       : "Delete"}
                   </Button>
                 </Form>
-              </td>
+              </TableCell>
             </tr>
           ))}
         </tbody>
-      </table>
+      </Table>
     </main>
   );
 }

@@ -1,7 +1,7 @@
 import type { ActionArgs } from "@remix-run/node";
 import { Form, Link, useLoaderData, useTransition } from "@remix-run/react";
 import { formatInTimeZone } from "date-fns-tz";
-import { Button } from "~/components";
+import { Button, Table, TableCell, TableHead } from "~/components";
 import { deleteUser, getUsers } from "~/model/user.server";
 
 export async function loader() {
@@ -29,26 +29,26 @@ export default function Index() {
           <Button size="small">Add</Button>
         </Link>
       </div>
-      <table aria-labelledby="title" className="w-full border-collapse border">
+      <Table aria-labelledby="title">
         <thead>
           <tr>
-            <th className=" border p-2">Name</th>
-            <th className=" border p-2">Email</th>
-            <th className=" whitespace-nowrap border p-2">Date of Birth</th>
-            <th className=" border p-2">Gender</th>
-            <th className=" border p-2">Action</th>
+            <TableHead>Name</TableHead>
+            <TableHead>Email</TableHead>
+            <TableHead className="whitespace-nowrap">Date of Birth</TableHead>
+            <TableHead>Gender</TableHead>
+            <TableHead>Action</TableHead>
           </tr>
         </thead>
         <tbody>
           {users.map((user) => (
             <tr key={user.id}>
-              <td className="whitespace-nowrap border p-2">{user.name}</td>
-              <td className="border p-2">{user.email}</td>
-              <td className="border p-2 text-center">
+              <TableCell className="whitespace-nowrap">{user.name}</TableCell>
+              <TableCell>{user.email}</TableCell>
+              <TableCell className="text-center">
                 {formatInTimeZone(user.dob, "Asia/Jakarta", "d MMM yyyy")}
-              </td>
-              <td className="border p-2 capitalize">{user.gender}</td>
-              <td className="min-w-[120px] border p-2 text-center">
+              </TableCell>
+              <TableCell className="capitalize">{user.gender}</TableCell>
+              <TableCell className="text-center">
                 <Link to={`${user.id}/edit`}>
                   <Button variant="text" size="small" className="w-full">
                     Edit
@@ -75,11 +75,11 @@ export default function Index() {
                       : "Delete"}
                   </Button>
                 </Form>
-              </td>
+              </TableCell>
             </tr>
           ))}
         </tbody>
-      </table>
+      </Table>
     </main>
   );
 }

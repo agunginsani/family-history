@@ -1,6 +1,6 @@
 import type { ActionArgs } from "@remix-run/node";
 import { Form, Link, useLoaderData, useTransition } from "@remix-run/react";
-import { Button } from "~/components";
+import { Button, Table, TableCell, TableHead } from "~/components";
 import { deleteMenu, getMenus } from "~/model/menu.server";
 
 export async function loader() {
@@ -28,20 +28,20 @@ export default function Index() {
           <Button size="small">Add</Button>
         </Link>
       </div>
-      <table aria-labelledby="title" className="w-full border-collapse border">
+      <Table aria-labelledby="title">
         <thead>
           <tr>
-            <th className=" border p-2">Name</th>
-            <th className=" border p-2">Path</th>
-            <th className=" border p-2">Action</th>
+            <TableHead>Name</TableHead>
+            <TableHead>Path</TableHead>
+            <TableHead>Action</TableHead>
           </tr>
         </thead>
         <tbody>
           {menus.map((menu) => (
             <tr key={menu.id}>
-              <td className="whitespace-nowrap border p-2">{menu.name}</td>
-              <td className="border p-2">{menu.path}</td>
-              <td className="min-w-[120px] border p-2 text-center">
+              <TableCell className="whitespace-nowrap">{menu.name}</TableCell>
+              <TableCell>{menu.path}</TableCell>
+              <TableCell className="text-center">
                 <Link to={`${menu.id}/edit`}>
                   <Button variant="text" size="small" className="w-full">
                     Edit
@@ -68,11 +68,11 @@ export default function Index() {
                       : "Delete"}
                   </Button>
                 </Form>
-              </td>
+              </TableCell>
             </tr>
           ))}
         </tbody>
-      </table>
+      </Table>
     </main>
   );
 }

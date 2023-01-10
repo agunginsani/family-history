@@ -1,6 +1,6 @@
 import type { ActionArgs } from "@remix-run/node";
 import { Form, Link, useLoaderData, useTransition } from "@remix-run/react";
-import { Button } from "~/components";
+import { Button, Table, TableCell, TableHead } from "~/components";
 import { deleteRoleMenu, getRoleMenus } from "~/model/role-menu.server";
 
 export async function loader() {
@@ -28,22 +28,22 @@ export default function Index() {
           <Button size="small">Add</Button>
         </Link>
       </div>
-      <table aria-labelledby="title" className="w-full border-collapse border">
+      <Table aria-labelledby="title">
         <thead>
           <tr>
-            <th className="border p-2">Role</th>
-            <th className="border p-2">Menu</th>
-            <th className="border p-2">Path</th>
-            <th className="border p-2">Action</th>
+            <TableHead>Role</TableHead>
+            <TableHead>Menu</TableHead>
+            <TableHead>Path</TableHead>
+            <TableHead>Action</TableHead>
           </tr>
         </thead>
         <tbody>
           {roleMenus.map((roleMenu) => (
             <tr key={roleMenu.id}>
-              <td className="border p-2">{roleMenu.role.name}</td>
-              <td className="border p-2">{roleMenu.menu.name}</td>
-              <td className="border p-2">{roleMenu.menu.path}</td>
-              <td className="min-w-[120px] border p-2 text-center">
+              <TableCell>{roleMenu.role.name}</TableCell>
+              <TableCell>{roleMenu.menu.name}</TableCell>
+              <TableCell>{roleMenu.menu.path}</TableCell>
+              <TableCell className="text-center">
                 <Link to={`${roleMenu.id}/edit`}>
                   <Button variant="text" size="small" className="w-full">
                     Edit
@@ -70,11 +70,11 @@ export default function Index() {
                       : "Delete"}
                   </Button>
                 </Form>
-              </td>
+              </TableCell>
             </tr>
           ))}
         </tbody>
-      </table>
+      </Table>
     </main>
   );
 }
