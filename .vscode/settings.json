@@ -1,4 +1,5 @@
 {
+  "editor.inlayHints.enabled": "on",
   "files.associations": {
     "*.css": "tailwindcss"
   }

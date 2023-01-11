@@ -11,7 +11,7 @@ import { formatDate } from "~/utils/date";
 export async function loader({ params }: LoaderArgs) {
   const id = z.string().uuid().parse(params.id);
   const [user, roles] = await Promise.all([getUser(id), getRoles()]);
-  return { user: { ...user, dob: formatDate(user.dob) }, roles };
+  return { user: { ...user, dob: formatDate(user.dob, "yyyy-MM-dd") }, roles };
 }
 
 export async function action({ request }: ActionArgs): Promise<ActionResponse> {
