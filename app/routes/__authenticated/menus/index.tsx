@@ -1,5 +1,6 @@
 import type { ActionArgs } from "@remix-run/node";
-import { Form, Link, useLoaderData, useTransition } from "@remix-run/react";
+import { Form, Link, useLoaderData, useNavigation } from "@remix-run/react";
+import { z } from "zod";
 import { Button, Table, TableCell, TableHead } from "~/components";
 import { deleteMenu, getMenus } from "~/model/menu.server";
 
@@ -10,14 +11,40 @@ export async function loader() {
 
 export async function action({ request }: ActionArgs) {
   const formData = await request.formData();
-  const menuId = formData.get("id")?.toString();
-  if (!menuId) throw new Error("Menu ID cannot be empty!");
-  return deleteMenu(menuId);
+  const id = z.string().uuid().parse(formData.get("id"));
+  await deleteMenu(id);
+  return null;
+}
+
+type DeleteFormProps = {
+  id: string;
+};
+
+function DeleteForm({ id }: DeleteFormProps) {
+  const ACTION_VALUE = `DELETE_${id}`;
+  const navigation = useNavigation();
+  return (
+    <Form method="delete">
+      <input type="hidden" name="id" value={id} />
+      <Button
+        name="_action"
+        value={ACTION_VALUE}
+        variant="text"
+        color="danger"
+        size="small"
+        className="w-full"
+      >
+        {navigation.state === "submitting" &&
+        navigation.formData.get("_action") === ACTION_VALUE
+          ? "Deleting..."
+          : "Delete"}
+      </Button>
+    </Form>
+  );
 }
 
 export default function Index() {
   const menus = useLoaderData<typeof loader>();
-  const transition = useTransition();
   return (
     <main className="mx-auto max-w-screen-lg overflow-auto rounded bg-white p-4 shadow">
       <div className="sticky left-0 mb-3 flex items-center justify-between">
@@ -47,27 +74,7 @@ export default function Index() {
                     Edit
                   </Button>
                 </Link>
-                <Form method="post">
-                  <input
-                    type="hidden"
-                    name="_action"
-                    value={`delete ${menu.id}`}
-                  />
-                  <Button
-                    name="id"
-                    value={menu.id}
-                    variant="text"
-                    color="danger"
-                    size="small"
-                    className="w-full"
-                  >
-                    {transition.state === "submitting" &&
-                    transition.submission.formData.get("_action") ===
-                      `delete ${menu.id}`
-                      ? "Deleting..."
-                      : "Delete"}
-                  </Button>
-                </Form>
+                <DeleteForm id={menu.id} />
               </TableCell>
             </tr>
           ))}
