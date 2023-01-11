@@ -1,6 +1,7 @@
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime";
 import type { ActionArgs } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
+import React from "react";
 import { z } from "zod";
 import type { ActionResponse } from "~/components/user-form";
 import { UserForm } from "~/components/user-form";
@@ -37,11 +38,16 @@ export async function action({ request }: ActionArgs): Promise<ActionResponse> {
 }
 
 export default function Add() {
+  const formRef = React.useRef<HTMLFormElement>(null);
   const roles = useLoaderData<typeof loader>();
   return (
     <main className="mb-3 rounded bg-white p-4 shadow">
       <h1 className="mb-3 text-2xl font-bold">Add User</h1>
-      <UserForm method="post" roles={roles} />
+      <UserForm
+        ref={formRef}
+        roles={roles}
+        onSuccess={() => formRef.current?.reset()}
+      />
     </main>
   );
 }
