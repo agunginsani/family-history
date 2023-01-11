@@ -1,157 +1,47 @@
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime";
 import type { ActionArgs } from "@remix-run/node";
-import {
-  Form,
-  Link,
-  useActionData,
-  useLoaderData,
-  useTransition,
-} from "@remix-run/react";
-import clsx from "clsx";
-import * as React from "react";
-import { Input, Button, Select, SelectOptionsSchema } from "~/components";
+import { useLoaderData } from "@remix-run/react";
+import { z } from "zod";
+import type { ActionResponse } from "~/components/user-form";
+import { UserForm } from "~/components/user-form";
 import { getRoles } from "~/model/role.server";
 import { AddUserDTOSchema, addUser } from "~/model/user.server";
 
-export async function loader() {
+export function loader() {
   return getRoles();
 }
 
-export async function action({ request }: ActionArgs) {
+export async function action({ request }: ActionArgs): Promise<ActionResponse> {
   const formData = await request.formData();
-  const dobString = formData.get("dob")?.toString();
-  dobString && formData.set("dob", new Date(dobString).toISOString());
-  const parsedFormDataObject = AddUserDTOSchema.parse(
-    Object.fromEntries(formData)
-  );
-  return addUser(parsedFormDataObject)
-    .then((user) => ({
-      type: "success" as const,
-      message: `${user.email} has been added!`,
-    }))
-    .catch((error) => {
-      let message = "Something went wrong!";
-
-      if (
-        error instanceof PrismaClientKnownRequestError &&
-        error.code === "P2002"
-      ) {
-        message = "This email has been registered before!";
-      } else {
-        console.error(error);
-      }
-
+  const dobString = z.string().parse(formData.get("dob"));
+  formData.set("dob", new Date(dobString).toISOString());
+  const formDataObject = AddUserDTOSchema.parse(Object.fromEntries(formData));
+  try {
+    const user = await addUser(formDataObject);
+    return {
+      type: "success",
+      message: `${user.name} has been added!`,
+    };
+  } catch (error) {
+    if (
+      error instanceof PrismaClientKnownRequestError &&
+      error.code === "P2002"
+    ) {
       return {
-        type: "error" as const,
-        message,
+        type: "error",
+        message: "This email has been registered before!",
       };
-    });
-}
-
-function Label(props: React.ComponentPropsWithoutRef<"label">) {
-  return <label className="w-min whitespace-nowrap text-sm" {...props} />;
+    }
+    throw error;
+  }
 }
 
 export default function Add() {
-  const transition = useTransition();
   const roles = useLoaderData<typeof loader>();
-  const response = useActionData<typeof action>();
-  const formRef = React.useRef<HTMLFormElement>(null);
-  const inputNameRef = React.useRef<HTMLInputElement>(null);
-  const isAdding =
-    transition.state === "submitting" &&
-    transition.submission.formData.get("_action") === "add user";
-
-  React.useEffect(() => {
-    if (response?.type === "success" && !isAdding) {
-      formRef.current?.reset();
-      inputNameRef.current?.focus();
-    }
-  }, [isAdding, response?.type]);
-
   return (
     <main className="mb-3 rounded bg-white p-4 shadow">
       <h1 className="mb-3 text-2xl font-bold">Add User</h1>
-      <div
-        className={clsx("mb-3 flex h-6 items-center font-semibold", {
-          "text-green-500": response?.type === "success",
-          "text-red-500": response?.type === "error",
-        })}
-        role="alert"
-      >
-        {!isAdding && response?.message}
-      </div>
-      <Form ref={formRef} className="grid gap-y-2" method="post">
-        <div className="grid gap-y-1">
-          <Label htmlFor="name">Name</Label>
-          <Input
-            ref={inputNameRef}
-            id="name"
-            type="text"
-            name="name"
-            required
-          />
-        </div>
-        <div className="grid gap-y-1">
-          <Label htmlFor="email">Email</Label>
-          <Input id="email" type="email" name="email" required />
-        </div>
-        <div className="grid gap-y-1">
-          <Label id="gender">Gender</Label>
-          <div
-            aria-labelledby="gender"
-            className="flex gap-x-3"
-            role="radiogroup"
-          >
-            <span>
-              <Input
-                id="gender-male"
-                type="radio"
-                value="male"
-                name="gender"
-                defaultChecked
-              />
-              <label className="ml-2" htmlFor="gender-male">
-                Male
-              </label>
-            </span>
-            <span>
-              <Input
-                id="gender-female"
-                type="radio"
-                value="female"
-                name="gender"
-              />
-              <label className="ml-2" htmlFor="gender-female">
-                Female
-              </label>
-            </span>
-          </div>
-        </div>
-        <div className="grid gap-y-1">
-          <Label htmlFor="dob">Date of Birth</Label>
-          <Input id="dob" type="date" name="dob" required />
-        </div>
-        <div className="grid gap-y-1">
-          <Label htmlFor="role">Role</Label>
-          <Select
-            id="role"
-            name="roleId"
-            options={SelectOptionsSchema.parse(roles)}
-            required
-          />
-        </div>
-        <div className="mt-4 flex gap-x-2">
-          <Button value="add user" name="_action">
-            {isAdding ? "Submitting..." : "Submit"}
-          </Button>
-          {!isAdding && (
-            <Link to="../users">
-              <Button variant="text">Cancel</Button>
-            </Link>
-          )}
-        </div>
-      </Form>
+      <UserForm method="post" roles={roles} />
     </main>
   );
 }

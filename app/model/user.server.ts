@@ -3,10 +3,6 @@ import { createHash } from "crypto";
 import { sign, verify } from "jsonwebtoken";
 import { z } from "zod";
 
-function hashPassword(password: string) {
-  return createHash("md5").update(password).digest("hex");
-}
-
 export const AddUserDTOSchema = z.object({
   email: z.string().email(),
   name: z.string(),
@@ -15,18 +11,17 @@ export const AddUserDTOSchema = z.object({
   gender: z.union([z.literal("male"), z.literal("female")]),
 });
 
+export const EditUserDTOSchema = AddUserDTOSchema.merge(
+  z.object({ id: z.string().uuid() })
+);
+
 export type AddUserDTO = z.infer<typeof AddUserDTOSchema>;
 
-export const EditUserDTOSchema = z.object({
-  id: z.string().uuid(),
-  email: z.string().email(),
-  name: z.string(),
-  roleId: z.string(),
-  dob: z.string().datetime(),
-  gender: z.union([z.literal("male"), z.literal("female")]),
-});
-
 export type EditUserDTO = z.infer<typeof EditUserDTOSchema>;
+
+function hashPassword(password: string) {
+  return createHash("md5").update(password).digest("hex");
+}
 
 export async function addUser(payload: AddUserDTO) {
   return prisma.user.create({

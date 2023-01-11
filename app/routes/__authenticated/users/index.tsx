@@ -1,24 +1,56 @@
 import type { ActionArgs } from "@remix-run/node";
-import { Form, Link, useLoaderData, useTransition } from "@remix-run/react";
+import { Form, Link, useLoaderData, useNavigation } from "@remix-run/react";
 import { formatInTimeZone } from "date-fns-tz";
+import { z } from "zod";
 import { Button, Table, TableCell, TableHead } from "~/components";
+import type { ActionResponse } from "~/components/user-form";
 import { deleteUser, getUsers } from "~/model/user.server";
 
-export async function loader() {
-  const users = await getUsers();
-  return users;
+export function loader() {
+  return getUsers();
 }
 
-export async function action({ request }: ActionArgs) {
+export async function action({ request }: ActionArgs): Promise<ActionResponse> {
   const formData = await request.formData();
-  const userId = formData.get("id")?.toString();
-  if (!userId) throw new Error("User ID cannot be empty!");
-  return deleteUser(userId);
+  const id = z.string().uuid().parse(formData.get("id"));
+  try {
+    await deleteUser(id);
+    return { type: "success", message: "Delete success!" };
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+type DeleteFormProps = {
+  id: string;
+};
+
+function DeleteForm({ id }: DeleteFormProps) {
+  const ACTION_VALUE = `DELETE_${id}`;
+  const navigation = useNavigation();
+  return (
+    <Form method="delete">
+      <input type="hidden" name="id" value={id} />
+      <Button
+        name="_action"
+        value={ACTION_VALUE}
+        variant="text"
+        color="danger"
+        size="small"
+        className="w-full"
+      >
+        {navigation.state === "submitting" &&
+        navigation.formData.get("_action") === ACTION_VALUE
+          ? "Deleting..."
+          : "Delete"}
+      </Button>
+    </Form>
+  );
 }
 
 export default function Index() {
   const users = useLoaderData<typeof loader>();
-  const transition = useTransition();
   return (
     <main className="mx-auto max-w-screen-lg overflow-auto rounded bg-white p-4 shadow">
       <div className="sticky left-0 mb-3 flex items-center justify-between">
@@ -54,27 +86,7 @@ export default function Index() {
                     Edit
                   </Button>
                 </Link>
-                <Form method="post">
-                  <input
-                    type="hidden"
-                    name="_action"
-                    value={`delete ${user.id}`}
-                  />
-                  <Button
-                    name="id"
-                    value={user.id}
-                    variant="text"
-                    color="danger"
-                    size="small"
-                    className="w-full"
-                  >
-                    {transition.state === "submitting" &&
-                    transition.submission.formData.get("_action") ===
-                      `delete ${user.id}`
-                      ? "Deleting..."
-                      : "Delete"}
-                  </Button>
-                </Form>
+                <DeleteForm id={user.id} />
               </TableCell>
             </tr>
           ))}
