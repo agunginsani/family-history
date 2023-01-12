@@ -2,8 +2,8 @@ import { PrismaClientKnownRequestError } from "@prisma/client/runtime";
 import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { z } from "zod";
-import type { ActionResponse } from "~/components/user-form";
-import { UserForm } from "~/components/user-form";
+import type { UserFormActionResponse } from "~/components";
+import { UserForm } from "~/components";
 import { getRoles } from "~/model/role.server";
 import { editUser, EditUserDTOSchema, getUser } from "~/model/user.server";
 import { formatDate } from "~/utils/date";
@@ -14,7 +14,9 @@ export async function loader({ params }: LoaderArgs) {
   return { user: { ...user, dob: formatDate(user.dob, "yyyy-MM-dd") }, roles };
 }
 
-export async function action({ request }: ActionArgs): Promise<ActionResponse> {
+export async function action({
+  request,
+}: ActionArgs): Promise<UserFormActionResponse> {
   const formData = await request.formData();
   const dobString = z.string().parse(formData.get("dob"));
   formData.set("dob", new Date(dobString).toISOString());
@@ -35,6 +37,7 @@ export async function action({ request }: ActionArgs): Promise<ActionResponse> {
         message: "This email has been registered before!",
       };
     }
+    console.error(error);
     throw error;
   }
 }

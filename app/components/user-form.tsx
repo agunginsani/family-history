@@ -9,7 +9,7 @@ import { Input } from "./input";
 import { Label } from "./label";
 import { Select } from "./select";
 
-export type ActionResponse = {
+export type UserFormActionResponse = {
   type: "success" | "error";
   message: string;
 };
@@ -24,7 +24,7 @@ export const UserForm = React.forwardRef<HTMLFormElement, UserFormProps>(
   function UserForm({ defaultValues, roles, onSuccess }, ref) {
     const inputNameRef = React.useRef<HTMLInputElement>(null);
     const onSuccessRef = React.useRef(onSuccess);
-    const response = useActionData<ActionResponse>();
+    const response = useActionData<UserFormActionResponse>();
     const navigation = useNavigation();
     const isBusy = navigation.state === "submitting";
     const gender = defaultValues?.gender ?? "male";

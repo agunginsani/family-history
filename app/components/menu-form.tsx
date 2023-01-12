@@ -6,7 +6,7 @@ import { Button } from "./button";
 import { Input } from "./input";
 import { Label } from "./label";
 
-export type ActionResponse = {
+export type MenuFormActionResponse = {
   type: string;
   message: string;
 };
@@ -21,7 +21,7 @@ export const MenuForm = React.forwardRef<HTMLFormElement, MenuFormProps>(
     const inputNameRef = React.useRef<HTMLInputElement>(null);
     const onSuccessRef = React.useRef(onSuccess);
     const navigation = useNavigation();
-    const response = useActionData<ActionResponse>();
+    const response = useActionData<MenuFormActionResponse>();
     const isBusy = navigation.state === "submitting";
 
     React.useEffect(() => {

@@ -1,17 +1,24 @@
 import type { ActionArgs } from "@remix-run/node";
 import React from "react";
-import type { ActionResponse } from "~/components/menu-form";
-import { MenuForm } from "~/components/menu-form";
+import type { MenuFormActionResponse } from "~/components";
+import { MenuForm } from "~/components";
 import { addMenu, AddMenuDTOSchema } from "~/model/menu.server";
 
-export async function action({ request }: ActionArgs): Promise<ActionResponse> {
+export async function action({
+  request,
+}: ActionArgs): Promise<MenuFormActionResponse> {
   const formData = await request.formData();
   const formDataObject = AddMenuDTOSchema.parse(Object.fromEntries(formData));
-  const menu = await addMenu(formDataObject);
-  return {
-    type: "success",
-    message: `${menu.name} has been added!`,
-  };
+  try {
+    const menu = await addMenu(formDataObject);
+    return {
+      type: "success",
+      message: `${menu.name} has been added!`,
+    };
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
 }
 
 export default function Add() {

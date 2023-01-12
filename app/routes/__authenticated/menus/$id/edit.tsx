@@ -1,8 +1,8 @@
 import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { z } from "zod";
-import type { ActionResponse } from "~/components/menu-form";
-import { MenuForm } from "~/components/menu-form";
+import type { MenuFormActionResponse } from "~/components";
+import { MenuForm } from "~/components";
 import { editMenu, EditMenuDTOSchema, getMenu } from "~/model/menu.server";
 
 export function loader({ params }: LoaderArgs) {
@@ -10,14 +10,21 @@ export function loader({ params }: LoaderArgs) {
   return getMenu(id);
 }
 
-export async function action({ request }: ActionArgs): Promise<ActionResponse> {
+export async function action({
+  request,
+}: ActionArgs): Promise<MenuFormActionResponse> {
   const formData = await request.formData();
   const formDataObject = EditMenuDTOSchema.parse(Object.fromEntries(formData));
-  await editMenu(formDataObject);
-  return {
-    type: "success",
-    message: "Update success!",
-  };
+  try {
+    await editMenu(formDataObject);
+    return {
+      type: "success",
+      message: "Update success!",
+    };
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
 }
 
 export default function Edit() {

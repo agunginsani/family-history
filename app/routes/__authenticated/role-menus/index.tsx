@@ -1,23 +1,29 @@
-import type { ActionArgs } from "@remix-run/node";
-import { Form, Link, useLoaderData, useTransition } from "@remix-run/react";
+import { Link, useFetcher, useLoaderData } from "@remix-run/react";
 import { Button, Table, TableCell, TableHead } from "~/components";
-import { deleteRoleMenu, getRoleMenus } from "~/model/role-menu.server";
+import { getRoleMenus } from "~/model/role-menu.server";
 
-export async function loader() {
-  const roleMenus = await getRoleMenus();
-  return roleMenus;
+export function loader() {
+  return getRoleMenus();
 }
 
-export async function action({ request }: ActionArgs) {
-  const formData = await request.formData();
-  const menuId = formData.get("id")?.toString();
-  if (!menuId) throw new Error("Role Menu ID cannot be empty!");
-  return deleteRoleMenu(menuId);
+type DeleteFormProps = {
+  id: string;
+};
+
+function DeleteForm({ id }: DeleteFormProps) {
+  const fetcher = useFetcher();
+  return (
+    <fetcher.Form method="post" action={`${id}/delete`}>
+      <input type="hidden" name="id" value={id} />
+      <Button className="w-full" color="danger" size="small" variant="text">
+        {fetcher.state === "submitting" ? "Deleting..." : "Delete"}
+      </Button>
+    </fetcher.Form>
+  );
 }
 
 export default function Index() {
   const roleMenus = useLoaderData<typeof loader>();
-  const transition = useTransition();
   return (
     <main className="mx-auto max-w-screen-lg overflow-auto rounded bg-white p-4 shadow">
       <div className="sticky left-0 mb-3 flex items-center justify-between">
@@ -34,7 +40,7 @@ export default function Index() {
             <TableHead>Role</TableHead>
             <TableHead>Menu</TableHead>
             <TableHead>Path</TableHead>
-            <TableHead>Action</TableHead>
+            <TableHead className="w-min-[120px]">Action</TableHead>
           </tr>
         </thead>
         <tbody>
@@ -49,27 +55,7 @@ export default function Index() {
                     Edit
                   </Button>
                 </Link>
-                <Form method="post">
-                  <input
-                    type="hidden"
-                    name="_action"
-                    value={`delete ${roleMenu.id}`}
-                  />
-                  <Button
-                    name="id"
-                    value={roleMenu.id}
-                    variant="text"
-                    color="danger"
-                    size="small"
-                    className="w-full"
-                  >
-                    {transition.state === "submitting" &&
-                    transition.submission.formData.get("_action") ===
-                      `delete ${roleMenu.id}`
-                      ? "Deleting..."
-                      : "Delete"}
-                  </Button>
-                </Form>
+                <DeleteForm id={roleMenu.id} />
               </TableCell>
             </tr>
           ))}
