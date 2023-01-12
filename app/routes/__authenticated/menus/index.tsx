@@ -1,19 +1,10 @@
-import type { ActionArgs } from "@remix-run/node";
-import { Form, Link, useLoaderData, useNavigation } from "@remix-run/react";
-import { z } from "zod";
+import { Link, useFetcher, useLoaderData } from "@remix-run/react";
 import { Button, Table, TableCell, TableHead } from "~/components";
-import { deleteMenu, getMenus } from "~/model/menu.server";
+import { getMenus } from "~/model/menu.server";
 
 export async function loader() {
   const menus = await getMenus();
   return menus;
-}
-
-export async function action({ request }: ActionArgs) {
-  const formData = await request.formData();
-  const id = z.string().uuid().parse(formData.get("id"));
-  await deleteMenu(id);
-  return null;
 }
 
 type DeleteFormProps = {
@@ -21,25 +12,14 @@ type DeleteFormProps = {
 };
 
 function DeleteForm({ id }: DeleteFormProps) {
-  const ACTION_VALUE = `DELETE_${id}`;
-  const navigation = useNavigation();
+  const fetcher = useFetcher();
   return (
-    <Form method="delete">
+    <fetcher.Form method="post" action={`${id}/delete`}>
       <input type="hidden" name="id" value={id} />
-      <Button
-        name="_action"
-        value={ACTION_VALUE}
-        variant="text"
-        color="danger"
-        size="small"
-        className="w-full"
-      >
-        {navigation.state === "submitting" &&
-        navigation.formData.get("_action") === ACTION_VALUE
-          ? "Deleting..."
-          : "Delete"}
+      <Button variant="text" color="danger" size="small" className="w-full">
+        {fetcher.state === "submitting" ? "Deleting..." : "Delete"}
       </Button>
-    </Form>
+    </fetcher.Form>
   );
 }
 
@@ -60,7 +40,7 @@ export default function Index() {
           <tr>
             <TableHead>Name</TableHead>
             <TableHead>Path</TableHead>
-            <TableHead>Action</TableHead>
+            <TableHead className="min-w-[120px]">Action</TableHead>
           </tr>
         </thead>
         <tbody>

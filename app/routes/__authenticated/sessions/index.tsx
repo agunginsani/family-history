@@ -1,8 +1,6 @@
-import type { ActionArgs } from "@remix-run/node";
-import { Form, useLoaderData, useNavigation } from "@remix-run/react";
-import { z } from "zod";
+import { useFetcher, useLoaderData } from "@remix-run/react";
 import { Button, Table, TableCell, TableHead } from "~/components";
-import { deleteSession, getSessions } from "~/model/session.server";
+import { getSessions } from "~/model/session.server";
 import { formatDateTime } from "~/utils/date";
 
 export async function loader() {
@@ -10,36 +8,19 @@ export async function loader() {
   return sessions;
 }
 
-export async function action({ request }: ActionArgs) {
-  const formData = await request.formData();
-  const token = z.string().parse(formData.get("token"));
-  return deleteSession(token);
-}
-
 type DeleteFormProps = {
   token: string;
 };
 
 function DeleteForm({ token }: DeleteFormProps) {
-  const ACTION_VALUE = `DELETE_${token}`;
-  const navigation = useNavigation();
+  const fetcher = useFetcher();
   return (
-    <Form method="delete">
-      <input type="hidden" name="id" value={token} />
-      <Button
-        name="_action"
-        value={ACTION_VALUE}
-        variant="text"
-        color="danger"
-        size="small"
-        className="w-full"
-      >
-        {navigation.state === "submitting" &&
-        navigation.formData.get("_action") === ACTION_VALUE
-          ? "Deleting..."
-          : "Delete"}
+    <fetcher.Form method="delete" action={`${token}/delete`}>
+      <input type="hidden" name="token" value={token} />
+      <Button variant="text" color="danger" size="small" className="w-full">
+        {fetcher.state === "submitting" ? "Deleting..." : "Delete"}
       </Button>
-    </Form>
+    </fetcher.Form>
   );
 }
 
@@ -60,7 +41,7 @@ export default function Index() {
             <TableHead>Browser</TableHead>
             <TableHead>Device</TableHead>
             <TableHead>Created at</TableHead>
-            <TableHead>Action</TableHead>
+            <TableHead className="min-w-[120px]">Action</TableHead>
           </tr>
         </thead>
         <tbody>
