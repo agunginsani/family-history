@@ -1,8 +1,9 @@
 import type { Menu, Role, RoleMenu } from "@prisma/client";
 import { Form, Link, useActionData, useNavigation } from "@remix-run/react";
-import clsx from "clsx";
 import * as React from "react";
+import { Alert } from "./alert";
 import { Button } from "./button";
+import { FadeTransition } from "./fade-transition";
 import { Label } from "./label";
 import { Select } from "./select";
 
@@ -23,29 +24,23 @@ export const RoleMenuForm = React.forwardRef<
   RoleMenuFormProps
 >(function RoleMenuForm({ defaultValues, menus, roles, onSuccess }, ref) {
   const navigation = useNavigation();
-  const response = useActionData<RoleMenuFormActionData>();
+  const actionData = useActionData<RoleMenuFormActionData>();
   const inputRoleRef = React.useRef<HTMLInputElement>(null);
   const onSuccessRef = React.useRef(onSuccess);
   const isBusy = navigation.state === "submitting";
 
   React.useEffect(() => {
-    if (response?.type === "success" && !isBusy) {
+    if (actionData?.type === "success" && !isBusy) {
       inputRoleRef.current?.focus();
       onSuccessRef.current?.();
     }
-  }, [isBusy, response?.type]);
+  }, [isBusy, actionData?.type]);
 
   return (
     <>
-      <div
-        className={clsx("mb-3 flex h-6 items-center font-semibold", {
-          "text-green-500": response?.type === "success",
-          "text-red-500": response?.type === "error",
-        })}
-        role="alert"
-      >
-        {!isBusy && response?.message}
-      </div>
+      <FadeTransition show={actionData && !isBusy}>
+        <Alert type={actionData?.type}>{actionData?.message}</Alert>
+      </FadeTransition>
       <Form ref={ref} className="grid gap-y-2" method="post">
         <input type="hidden" name="id" value={defaultValues?.id} />
         <div className="grid gap-y-1">

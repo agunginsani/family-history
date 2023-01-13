@@ -1,5 +1,5 @@
 import type { LinksFunction } from "@remix-run/node";
-import { Links, Outlet, Scripts } from "@remix-run/react";
+import { Links, LiveReload, Outlet, Scripts } from "@remix-run/react";
 import styles from "./styles/app.css";
 
 export function links(): ReturnType<LinksFunction> {
@@ -19,6 +19,7 @@ export default function Root() {
           <Outlet />
         </div>
         <div id="z-1" className="z-1 relative" />
+        <LiveReload />
         <Scripts />
       </body>
     </html>
