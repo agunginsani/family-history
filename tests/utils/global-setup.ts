@@ -8,21 +8,32 @@ export const user = {
   dob: faker.date.birthdate().toISOString(),
   gender: faker.name.sex(),
   password: "dummypassword",
-  role: {
-    create: { name: "ADMIN" },
-  },
 };
 
 export default async () => {
   const prisma = new PrismaClient();
 
   async function main() {
-    await prisma.user.create({
-      data: {
-        ...user,
-        password: createHash("md5").update(user.password).digest("hex"),
-      },
-    });
+    const role = await prisma.role.findFirst({ where: { name: "ADMIN" } });
+    if (role === null) {
+      await prisma.user.create({
+        data: {
+          ...user,
+          role: {
+            create: { name: "ADMIN" },
+          },
+          password: createHash("md5").update(user.password).digest("hex"),
+        },
+      });
+    } else {
+      await prisma.user.create({
+        data: {
+          ...user,
+          roleId: role.id,
+          password: createHash("md5").update(user.password).digest("hex"),
+        },
+      });
+    }
   }
 
   await main()
