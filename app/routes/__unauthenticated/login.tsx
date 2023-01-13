@@ -72,7 +72,7 @@ export default function Login() {
   return (
     <div className="grid h-screen place-content-center">
       <main className="w-80 rounded bg-white p-4 shadow">
-        <span className="mb-3 text-2xl font-bold">Who are you?</span>
+        <h1 className="mb-3 text-2xl font-bold">Who are you?</h1>
         <Form className="grid gap-y-2" method="post">
           <div
             className="flex h-6 items-center font-semibold text-red-500"
