@@ -104,6 +104,8 @@ const config: PlaywrightTestConfig = {
     reuseExistingServer: !process.env.CI,
   },
 
+  globalSetup: "./tests/utils/global-setup.ts",
+  globalTeardown: "./tests/utils/global-teardown.ts",
 };
 
 export default config;
