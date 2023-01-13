@@ -1,9 +1,10 @@
 import type { Role, User } from "@prisma/client";
 import { useActionData, useNavigation } from "@remix-run/react";
 import { Form, Link } from "@remix-run/react";
-import clsx from "clsx";
 import * as React from "react";
+import { Alert } from "./alert";
 import { Button } from "./button";
+import { FadeTransition } from "./fade-transition";
 import { FormControl } from "./form-control";
 import { Input } from "./input";
 import { Label } from "./label";
@@ -24,28 +25,24 @@ export const UserForm = React.forwardRef<HTMLFormElement, UserFormProps>(
   function UserForm({ defaultValues, roles, onSuccess }, ref) {
     const inputNameRef = React.useRef<HTMLInputElement>(null);
     const onSuccessRef = React.useRef(onSuccess);
-    const response = useActionData<UserFormActionResponse>();
+    const actionData = useActionData<UserFormActionResponse>();
     const navigation = useNavigation();
     const isBusy = navigation.state === "submitting";
     const gender = defaultValues?.gender ?? "male";
 
     React.useEffect(() => {
-      if (response?.type === "success" && !isBusy) {
+      if (actionData?.type === "success" && !isBusy) {
         inputNameRef.current?.focus();
         onSuccessRef.current?.();
       }
-    }, [isBusy, response?.type]);
+    }, [isBusy, actionData?.type]);
 
     return (
       <>
-        <div
-          className={clsx("mb-3 flex h-6 items-center font-semibold", {
-            "text-green-500": response?.type === "success",
-            "text-red-500": response?.type === "error",
-          })}
-          role="alert"
-        >
-          {!isBusy && response?.message}
+        <div className="mb-3 h-6">
+          <FadeTransition show={actionData && !isBusy}>
+            <Alert type={actionData?.type}>{actionData?.message}</Alert>
+          </FadeTransition>
         </div>
         <Form ref={ref} className="grid gap-y-2" method="post">
           <input type="hidden" name="id" defaultValue={defaultValues?.id} />
