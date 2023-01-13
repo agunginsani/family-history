@@ -8,10 +8,30 @@ on:
 
 env:
   NODE_ENV: production
+  DATABASE_URL: postgresql://postgres:admin@localhost:5432/family_history
+  JWT_SECRET: jwt_s3cr3t
+  COOKIE_SECRET: cookie_s3cr3t
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    services:
+      # Label used to access the service container
+      postgres:
+        # Docker Hub image
+        image: postgres:15
+        # Provide the password for postgres
+        env:
+          POSTGRES_DB: family_history
+          POSTGRES_PASSWORD: admin
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
@@ -24,3 +44,9 @@ jobs:
         run: npx prettier . --check --ignore-unknown
       - name: Build
         run: npm run build
+      - name: Migrate DB
+        run: npx prisma migrate dev
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+      - name: Run Playwright tests
+        run: npx playwright test --project chromium
