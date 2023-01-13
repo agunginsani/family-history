@@ -174,6 +174,7 @@ function Avatar() {
   return (
     <>
       <button
+        aria-label="Open avatar menu"
         ref={reference}
         className="h-10 w-10 rounded-full bg-slate-200 font-bold"
         {...getReferenceProps()}

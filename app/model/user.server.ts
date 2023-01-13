@@ -50,7 +50,9 @@ export function getUsers() {
   return prisma.user.findMany({ orderBy: { id: "asc" } });
 }
 
-export function deleteUser(id: string) {
+export async function deleteUser(id: string) {
+  const user = await prisma.user.findFirstOrThrow({ where: { id } });
+  await prisma.session.deleteMany({ where: { email: user.email } });
   return prisma.user.delete({ where: { id } });
 }
 
