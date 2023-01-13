@@ -22,7 +22,7 @@ import {
 import * as React from "react";
 import { useMediaQuery } from "react-responsive";
 import { Transition } from "react-transition-group";
-import { Button } from "~/components";
+import { Button, FadeTransition } from "~/components";
 import { getMenusByRole } from "~/model/role-menu.server";
 import { verifyUser } from "~/model/user.server";
 import { destroySession, getSession } from "~/utils/session.server";
@@ -73,14 +73,6 @@ function Menu() {
     unmounted: {},
   };
 
-  const fadeTransitionStyles = {
-    entering: { opacity: 0.5 },
-    entered: { opacity: 0.5 },
-    exiting: { opacity: 0 },
-    exited: { opacity: 0 },
-    unmounted: {},
-  };
-
   const list = (
     <ul className="grid gap-y-2">
       <li>
@@ -119,21 +111,13 @@ function Menu() {
       <FloatingPortal id={isMediumScreen ? "z-0" : "z-1"}>
         {!isMediumScreen ? (
           <>
-            <Transition
-              in={isOpen}
-              nodeRef={overlayRef}
-              timeout={200}
-              unmountOnExit
-            >
-              {(state) => (
-                <FloatingOverlay
-                  ref={overlayRef}
-                  className="fixed left-0 top-0 z-10 h-screen w-screen bg-black opacity-0 transition-opacity duration-200 ease-in-out"
-                  style={fadeTransitionStyles[state]}
-                  lockScroll
-                />
-              )}
-            </Transition>
+            <FadeTransition show={isOpen}>
+              <FloatingOverlay
+                ref={overlayRef}
+                className="fixed left-0 top-0 z-10 h-screen w-screen bg-black"
+                lockScroll
+              />
+            </FadeTransition>
             <Transition
               in={isOpen}
               nodeRef={refs.floating}
