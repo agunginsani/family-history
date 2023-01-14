@@ -1,5 +1,4 @@
 export * from "./button";
-export * from "./fade-transition";
 export * from "./form-control";
 export * from "./input";
 export * from "./label";
