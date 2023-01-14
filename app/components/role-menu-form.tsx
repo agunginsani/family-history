@@ -3,7 +3,6 @@ import { Form, Link, useActionData, useNavigation } from "@remix-run/react";
 import * as React from "react";
 import { Alert } from "./alert";
 import { Button } from "./button";
-import { FadeTransition } from "./fade-transition";
 import { Label } from "./label";
 import { Select } from "./select";
 
@@ -38,9 +37,10 @@ export const RoleMenuForm = React.forwardRef<
 
   return (
     <>
-      <FadeTransition show={actionData && !isBusy}>
+      {actionData && !isBusy && (
         <Alert type={actionData?.type}>{actionData?.message}</Alert>
-      </FadeTransition>
+      )}
+
       <Form ref={ref} className="grid gap-y-2" method="post">
         <input type="hidden" name="id" value={defaultValues?.id} />
         <div className="grid gap-y-1">

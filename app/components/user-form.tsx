@@ -4,7 +4,6 @@ import { Form, Link } from "@remix-run/react";
 import * as React from "react";
 import { Alert } from "./alert";
 import { Button } from "./button";
-import { FadeTransition } from "./fade-transition";
 import { FormControl } from "./form-control";
 import { Input } from "./input";
 import { Label } from "./label";
@@ -40,9 +39,9 @@ export const UserForm = React.forwardRef<HTMLFormElement, UserFormProps>(
     return (
       <>
         <div className="mb-3 h-6">
-          <FadeTransition show={actionData && !isBusy}>
-            <Alert type={actionData?.type}>{actionData?.message}</Alert>
-          </FadeTransition>
+          {actionData && !isBusy && (
+            <Alert type={actionData.type}>{actionData.message}</Alert>
+          )}
         </div>
         <Form ref={ref} className="grid gap-y-2" method="post">
           <input type="hidden" name="id" defaultValue={defaultValues?.id} />

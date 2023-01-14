@@ -1,4 +1,4 @@
-import { json, redirect } from "@remix-run/node";
+import { redirect } from "@remix-run/node";
 import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { Form, useLoaderData, useTransition } from "@remix-run/react";
 import { z } from "zod";
@@ -6,6 +6,7 @@ import { Button, Input } from "~/components";
 import { CredentialsError, login } from "~/model/user.server";
 import uaParser from "ua-parser-js";
 import { commitSession, getSession } from "~/utils/session.server";
+import { Alert } from "~/components/alert";
 
 function formatUserAgent(
   general: string | undefined,
@@ -25,8 +26,7 @@ export async function loader({ request }: LoaderArgs) {
     throw redirect("/");
   }
 
-  const data = { error: session.get("error") as string };
-  return json(data);
+  return { error: session.get("error") as string | undefined };
 }
 
 export async function action({ request }: ActionArgs) {
@@ -44,7 +44,9 @@ export async function action({ request }: ActionArgs) {
       os: formatUserAgent(ua.os.name, ua.os.version),
       device: formatUserAgent(ua.device.vendor, ua.device.model),
     });
+
     session.set("token", data.token);
+
     return redirect("/", {
       headers: {
         "Set-Cookie": await commitSession(session),
@@ -74,11 +76,8 @@ export default function Login() {
       <main className="w-80 rounded bg-white p-4 shadow">
         <h1 className="mb-3 text-2xl font-bold">Who are you?</h1>
         <Form className="grid gap-y-2" method="post">
-          <div
-            className="flex h-6 items-center font-semibold text-red-500"
-            role="alert"
-          >
-            {error}
+          <div className="h-6">
+            {error && <Alert type="error">{error}</Alert>}
           </div>
           <div className="grid gap-y-1">
             <label className="text-sm" htmlFor="email">
