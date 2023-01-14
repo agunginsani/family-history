@@ -1,3 +1,4 @@
+import { faker } from "@faker-js/faker";
 import { test, expect } from "@playwright/test";
 import { user } from "./utils/global-setup";
 
@@ -23,4 +24,21 @@ test("User can login and logout", async ({ page }) => {
   await expect(
     page.getByRole("heading", { name: "Who are you?" })
   ).toBeVisible();
+});
+
+test("User cannot login with invalid credentials", async ({ page }) => {
+  await page.goto("/");
+
+  await expect(
+    page.getByRole("heading", { name: "Who are you?" })
+  ).toBeVisible();
+
+  await page
+    .getByRole("textbox", { name: "Email" })
+    .type(faker.internet.email());
+  await page
+    .getByRole("textbox", { name: "Password" })
+    .type(faker.internet.password());
+  await page.getByRole("button", { name: "Submit" }).click();
+  await expect(page.getByRole("alert")).toHaveText("Invalid credentials!");
 });
