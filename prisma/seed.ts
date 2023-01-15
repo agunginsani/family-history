@@ -1,32 +1,41 @@
+import { faker } from "@faker-js/faker";
 import { PrismaClient } from "@prisma/client";
 import { createHash } from "crypto";
 
 const prisma = new PrismaClient();
 
 async function main() {
-  const password = createHash("md5").update("P@ssw0rd").digest("hex");
-  await prisma.user.create({
-    data: {
-      email: "agunginsanialam@gmail.com",
-      name: "Agung Insani Alam",
-      dob: new Date("1993-1-4").toISOString(),
-      gender: "male",
-      password,
-      role: {
-        create: { name: "ADMIN" },
-      },
-    },
+  const adminRole = await prisma.role.create({
+    data: { name: "ADMIN" },
+  });
+  const menuMenu = await prisma.menu.create({
+    data: { name: "Menu", path: "menus" },
+  });
+  const roleMenuMenu = await prisma.menu.create({
+    data: { name: "Role Menu", path: "role-menus" },
+  });
+  const userMenu = await prisma.menu.create({
+    data: { name: "User", path: "users" },
+  });
+  const sessionMenu = await prisma.menu.create({
+    data: { name: "Session", path: "sessions" },
+  });
+  await prisma.roleMenu.createMany({
+    data: [
+      { menuId: menuMenu.id, roleId: adminRole.id },
+      { menuId: roleMenuMenu.id, roleId: adminRole.id },
+      { menuId: userMenu.id, roleId: adminRole.id },
+      { menuId: sessionMenu.id, roleId: adminRole.id },
+    ],
   });
   await prisma.user.create({
     data: {
-      email: "izzatijah@gmail.com",
-      name: "Izzati Choirina Fajrin",
-      dob: new Date("1994-1-18").toISOString(),
-      gender: "female",
-      password,
-      role: {
-        create: { name: "USER" },
-      },
+      email: "admin@test.com",
+      name: "Admin",
+      dob: faker.date.birthdate().toISOString(),
+      gender: "male",
+      password: createHash("md5").update("admin").digest("hex"),
+      roleId: adminRole.id,
     },
   });
 }

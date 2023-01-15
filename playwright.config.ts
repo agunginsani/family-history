@@ -103,9 +103,6 @@ const config: PlaywrightTestConfig = {
     port: 3000,
     reuseExistingServer: !process.env.CI,
   },
-
-  globalSetup: "./tests/utils/global-setup.ts",
-  globalTeardown: "./tests/utils/global-teardown.ts",
 };
 
 export default config;

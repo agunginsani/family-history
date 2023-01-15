@@ -82,7 +82,7 @@ function Menu() {
   };
 
   const list = (
-    <ul className="grid gap-y-2">
+    <ul className="grid gap-y-2" aria-label="Menu">
       <li>
         <Link to="">
           <Button variant="text" className="w-full text-left">
@@ -256,8 +256,8 @@ export default function Authenticated() {
     <>
       <header className="sticky top-0 z-10 flex h-16 items-center justify-between bg-white px-3 shadow-md">
         <div>
-          <Menu />
           <span className="mb-3 text-2xl font-bold">Family History</span>
+          <Menu />
         </div>
         <Avatar />
       </header>
