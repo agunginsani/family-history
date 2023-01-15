@@ -45,7 +45,7 @@ jobs:
       - name: Build
         run: npm run build
       - name: Migrate DB
-        run: npx prisma migrate reset
+        run: npx prisma migrate reset --force
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
       - name: Run Playwright tests
