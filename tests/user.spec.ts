@@ -2,10 +2,11 @@ import { faker } from "@faker-js/faker";
 import { test, expect } from "@playwright/test";
 import { formatDate } from "~/utils/date";
 
-test("Admin can create new user", async ({ page }) => {
+test("Admin can CRUD user", async ({ page }) => {
   await page.goto("/");
 
   const main = page.getByRole("main");
+  const table = main.getByRole("table", { name: "Users" });
 
   await expect(
     page.getByRole("heading", { name: "Who are you?" })
@@ -25,11 +26,15 @@ test("Admin can create new user", async ({ page }) => {
 
   await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
 
+  /**
+   * Add user.
+   */
+
   await main.getByRole("button", { name: "Add" }).click();
 
   await expect(page.getByRole("heading", { name: "Add User" })).toBeVisible();
 
-  const name = faker.name.fullName();
+  let name = faker.name.fullName();
 
   await main.getByLabel("Name").fill(name);
   await main.getByLabel("Email").fill(faker.internet.email());
@@ -44,8 +49,39 @@ test("Admin can create new user", async ({ page }) => {
     .click();
 
   await main.getByRole("button", { name: "Submit" }).click();
-
   await expect(main.getByRole("alert")).toHaveText(`${name} has been added!`);
+
+  await main.getByRole("button", { name: "Cancel" }).click();
+
+  await expect(table.getByRole("cell", { name, exact: true })).toBeVisible();
+
+  /**
+   * Edit user.
+   */
+
+  await table.getByRole("link", { name: `Edit ${name}` }).click();
+
+  await expect(page.getByRole("heading", { name: "Edit User" })).toBeVisible();
+
+  name = faker.name.fullName();
+
+  await main.getByLabel("Name").fill(name);
+
+  await main.getByRole("button", { name: "Submit" }).click();
+  await expect(main.getByRole("alert")).toHaveText(`Update success!`);
+
+  await main.getByRole("button", { name: "Cancel" }).click();
+
+  await expect(table.getByRole("cell", { name, exact: true })).toBeVisible();
+
+  /**
+   * Delete user.
+   */
+
+  await table.getByRole("button", { name: `Delete ${name}` }).click();
+  await expect(
+    table.getByRole("cell", { name, exact: true })
+  ).not.toBeVisible();
 
   await page.getByRole("button", { name: "Open avatar menu" }).click();
   await page.getByRole("button", { name: "Log out" }).click();
