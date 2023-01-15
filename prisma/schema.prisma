@@ -34,7 +34,7 @@ model Session {
 
 model Role {
   id             String           @id @default(uuid())
-  name           String
+  name           String           @unique
   roleMenu       RoleMenu[]
   user           User[]
   rolePermission RolePermission[]
@@ -43,7 +43,7 @@ model Role {
 model Menu {
   id         String       @id @default(uuid())
   name       String
-  path       String
+  path       String       @unique
   roleMenu   RoleMenu[]
   permission Permission[]
 }

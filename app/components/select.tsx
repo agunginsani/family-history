@@ -148,6 +148,7 @@ export const Select = React.forwardRef<HTMLInputElement, SelectProps>(
           >
             {(state) => (
               <div
+                role="listbox"
                 ref={floating}
                 className="grid overflow-hidden rounded border-slate-200 bg-white opacity-0 shadow transition-opacity duration-200 ease-out"
                 style={{
