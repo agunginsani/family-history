@@ -1,6 +1,7 @@
 import { faker } from "@faker-js/faker";
 import { test, expect } from "@playwright/test";
 import { formatDate } from "~/utils/date";
+import { login, logout } from "./utils/authentication";
 
 test("Admin can CRUD user", async ({ page }) => {
   await page.goto("/");
@@ -8,16 +9,7 @@ test("Admin can CRUD user", async ({ page }) => {
   const main = page.getByRole("main");
   const table = main.getByRole("table", { name: "Users" });
 
-  await expect(
-    page.getByRole("heading", { name: "Who are you?" })
-  ).toBeVisible();
-
-  const email = "admin@test.com";
-  const password = "admin";
-
-  await page.getByRole("textbox", { name: "Email" }).fill(email);
-  await page.getByRole("textbox", { name: "Password" }).fill(password);
-  await page.getByRole("button", { name: "Submit" }).click();
+  await login(page);
 
   await page
     .getByRole("list", { name: "Menu" })
@@ -83,6 +75,5 @@ test("Admin can CRUD user", async ({ page }) => {
     table.getByRole("cell", { name, exact: true })
   ).not.toBeVisible();
 
-  await page.getByRole("button", { name: "Open avatar menu" }).click();
-  await page.getByRole("button", { name: "Log out" }).click();
+  await logout(page);
 });
