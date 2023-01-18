@@ -12,7 +12,7 @@ test("Admin can CRUD menu", async ({ page }) => {
 
   await page
     .getByRole("list", { name: "Menu" })
-    .getByRole("link", { name: "Menu" })
+    .getByRole("link", { name: "Menu", exact: true })
     .click();
 
   await expect(page.getByRole("heading", { name: "Menus" })).toBeVisible();
