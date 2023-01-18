@@ -18,7 +18,7 @@ test("Admin can CRUD menu", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Menus" })).toBeVisible();
 
   /**
-   * Add user.
+   * Add menu.
    */
 
   await main.getByRole("button", { name: "Add" }).click();
@@ -38,12 +38,12 @@ test("Admin can CRUD menu", async ({ page }) => {
   await expect(table.getByRole("cell", { name, exact: true })).toBeVisible();
 
   /**
-   * Edit user.
+   * Edit menu.
    */
 
   await table.getByRole("link", { name: `Edit ${name}` }).click();
 
-  await expect(page.getByRole("heading", { name: "Edit User" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Edit Menu" })).toBeVisible();
 
   name = faker.word.noun();
 
@@ -57,7 +57,7 @@ test("Admin can CRUD menu", async ({ page }) => {
   await expect(table.getByRole("cell", { name, exact: true })).toBeVisible();
 
   /**
-   * Delete user.
+   * Delete menu.
    */
 
   await table.getByRole("button", { name: `Delete ${name}` }).click();
