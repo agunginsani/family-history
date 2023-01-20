@@ -42,7 +42,7 @@ model Role {
 
 model Menu {
   id         String       @id @default(uuid())
-  name       String
+  name       String       @unique
   path       String       @unique
   roleMenu   RoleMenu[]
   permission Permission[]
@@ -60,7 +60,7 @@ model RoleMenu {
 
 model Permission {
   id             String           @id @default(uuid())
-  name           String
+  name           String           @unique
   menu           Menu             @relation(fields: [menuId], references: [id])
   menuId         String
   rolePermission RolePermission[]

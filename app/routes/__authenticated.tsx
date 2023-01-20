@@ -256,8 +256,8 @@ export default function Authenticated() {
     <>
       <header className="sticky top-0 z-10 flex h-16 items-center justify-between bg-white px-3 shadow-md">
         <div>
-          <span className="mb-3 text-2xl font-bold">Family History</span>
           <Menu />
+          <span className="mb-3 text-2xl font-bold">Family History</span>
         </div>
         <Avatar />
       </header>

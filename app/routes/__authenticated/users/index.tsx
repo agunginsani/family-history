@@ -9,21 +9,14 @@ export function loader() {
 
 type DeleteFormProps = {
   id: string;
-  name: string;
 };
 
-function DeleteForm({ id, name }: DeleteFormProps) {
+function DeleteForm({ id }: DeleteFormProps) {
   const fetcher = useFetcher();
   return (
     <fetcher.Form method="post" action={`${id}/delete`}>
       <input type="hidden" name="id" value={id} />
-      <Button
-        aria-label={`Delete ${name}`}
-        className="w-full"
-        color="danger"
-        size="small"
-        variant="text"
-      >
+      <Button className="w-full" color="danger" size="small" variant="text">
         {fetcher.state === "submitting" ? "Deleting..." : "Delete"}
       </Button>
     </fetcher.Form>
@@ -63,16 +56,11 @@ export default function Index() {
               <TableCell className="capitalize">{user.gender}</TableCell>
               <TableCell className="text-center">
                 <Link to={`${user.id}/edit`}>
-                  <Button
-                    aria-label={`Edit ${user.name}`}
-                    variant="text"
-                    size="small"
-                    className="w-full"
-                  >
+                  <Button variant="text" size="small" className="w-full">
                     Edit
                   </Button>
                 </Link>
-                <DeleteForm id={user.id} name={user.name} />
+                <DeleteForm id={user.id} />
               </TableCell>
             </tr>
           ))}

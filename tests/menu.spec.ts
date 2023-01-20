@@ -7,6 +7,7 @@ test("Admin can CRUD menu", async ({ page }) => {
 
   const main = page.getByRole("main");
   const table = main.getByRole("table", { name: "Menus" });
+  let name = faker.word.noun();
 
   await login(page);
 
@@ -25,8 +26,6 @@ test("Admin can CRUD menu", async ({ page }) => {
 
   await expect(page.getByRole("heading", { name: "Add Menu" })).toBeVisible();
 
-  let name = faker.word.noun();
-
   await main.getByLabel("Name").fill(name);
   await main.getByLabel("path").fill(faker.internet.domainWord());
 
@@ -35,13 +34,17 @@ test("Admin can CRUD menu", async ({ page }) => {
 
   await main.getByRole("button", { name: "Cancel" }).click();
 
-  await expect(table.getByRole("cell", { name, exact: true })).toBeVisible();
+  await expect(table.getByRole("row").filter({ hasText: name })).toBeVisible();
 
   /**
    * Edit menu.
    */
 
-  await table.getByRole("link", { name: `Edit ${name}` }).click();
+  await table
+    .getByRole("row")
+    .filter({ hasText: name })
+    .getByRole("link", { name: "Edit" })
+    .click();
 
   await expect(page.getByRole("heading", { name: "Edit Menu" })).toBeVisible();
 
@@ -54,15 +57,20 @@ test("Admin can CRUD menu", async ({ page }) => {
 
   await main.getByRole("button", { name: "Cancel" }).click();
 
-  await expect(table.getByRole("cell", { name, exact: true })).toBeVisible();
+  await expect(table.getByRole("row").filter({ hasText: name })).toBeVisible();
 
   /**
    * Delete menu.
    */
 
-  await table.getByRole("button", { name: `Delete ${name}` }).click();
+  await table
+    .getByRole("row")
+    .filter({ hasText: name })
+    .getByRole("button", { name: `Delete ${name}` })
+    .click();
+
   await expect(
-    table.getByRole("cell", { name, exact: true })
+    table.getByRole("row").filter({ hasText: name })
   ).not.toBeVisible();
 
   await logout(page);
