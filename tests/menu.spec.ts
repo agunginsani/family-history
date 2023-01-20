@@ -66,7 +66,7 @@ test("Admin can CRUD menu", async ({ page }) => {
   await table
     .getByRole("row")
     .filter({ hasText: name })
-    .getByRole("button", { name: `Delete ${name}` })
+    .getByRole("button", { name: "Delete" })
     .click();
 
   await expect(
