@@ -8,6 +8,7 @@ test("Admin can CRUD user", async ({ page }) => {
 
   const main = page.getByRole("main");
   const table = main.getByRole("table", { name: "Users" });
+  let name = faker.name.fullName();
 
   await login(page);
 
@@ -26,8 +27,6 @@ test("Admin can CRUD user", async ({ page }) => {
 
   await expect(page.getByRole("heading", { name: "Add User" })).toBeVisible();
 
-  let name = faker.name.fullName();
-
   await main.getByLabel("Name").fill(name);
   await main.getByLabel("Email").fill(faker.internet.email());
   await main.getByLabel("Male", { exact: true }).check();
@@ -45,13 +44,17 @@ test("Admin can CRUD user", async ({ page }) => {
 
   await main.getByRole("button", { name: "Cancel" }).click();
 
-  await expect(table.getByRole("cell", { name, exact: true })).toBeVisible();
+  await expect(table.getByRole("row").filter({ hasText: name })).toBeVisible();
 
   /**
    * Edit user.
    */
 
-  await table.getByRole("link", { name: `Edit ${name}` }).click();
+  await table
+    .getByRole("row")
+    .filter({ hasText: name })
+    .getByRole("link", { name: "Edit" })
+    .click();
 
   await expect(page.getByRole("heading", { name: "Edit User" })).toBeVisible();
 
@@ -64,15 +67,20 @@ test("Admin can CRUD user", async ({ page }) => {
 
   await main.getByRole("button", { name: "Cancel" }).click();
 
-  await expect(table.getByRole("cell", { name, exact: true })).toBeVisible();
+  await expect(table.getByRole("row").filter({ hasText: name })).toBeVisible();
 
   /**
    * Delete user.
    */
 
-  await table.getByRole("button", { name: `Delete ${name}` }).click();
+  await table
+    .getByRole("row")
+    .filter({ hasText: name })
+    .getByRole("button", { name: "Delete" })
+    .click();
+
   await expect(
-    table.getByRole("cell", { name, exact: true })
+    table.getByRole("row").filter({ hasText: name })
   ).not.toBeVisible();
 
   await logout(page);
