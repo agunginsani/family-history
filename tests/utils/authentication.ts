@@ -1,13 +1,19 @@
 import type { Page } from "@playwright/test";
 import { expect } from "@playwright/test";
 
-export async function login(page: Page) {
+type LoginArgs = {
+  page: Page;
+  email?: string;
+  password?: string;
+};
+
+export async function login({ page, ...args }: LoginArgs) {
   await expect(
     page.getByRole("heading", { name: "Who are you?" })
   ).toBeVisible();
 
-  const email = "admin@test.com";
-  const password = "admin";
+  const email = args.email ?? "admin@test.com";
+  const password = args.password ?? "admin";
 
   await page.getByRole("textbox", { name: "Email" }).fill(email);
   await page.getByRole("textbox", { name: "Password" }).fill(password);
