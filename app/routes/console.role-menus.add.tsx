@@ -41,7 +41,7 @@ export async function action({
   }
 }
 
-export default function Add() {
+export default function Index() {
   const formRef = React.useRef<HTMLFormElement>(null);
   const [menus, roles] = useLoaderData<typeof loader>();
   return (

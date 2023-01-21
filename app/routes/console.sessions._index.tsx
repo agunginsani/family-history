@@ -16,7 +16,6 @@ function DeleteForm({ token }: DeleteFormProps) {
   const fetcher = useFetcher();
   return (
     <fetcher.Form method="delete" action={`${token}/delete`}>
-      <input type="hidden" name="token" value={token} />
       <Button variant="text" color="danger" size="small" className="w-full">
         {fetcher.state === "submitting" ? "Deleting..." : "Delete"}
       </Button>

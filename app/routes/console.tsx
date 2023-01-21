@@ -229,7 +229,7 @@ function Avatar() {
                     Go to profile
                   </Button>
                 </Link>
-                <Form action="logout" method="post">
+                <Form action="/logout" method="post">
                   <Button
                     color="danger"
                     className="w-full"
@@ -251,7 +251,7 @@ function Avatar() {
   );
 }
 
-export default function Authenticated() {
+export default function Index() {
   return (
     <>
       <header className="sticky top-0 z-10 flex h-16 items-center justify-between bg-white px-3 shadow-md">

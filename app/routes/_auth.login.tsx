@@ -68,7 +68,7 @@ export async function action({ request }: ActionArgs) {
   }
 }
 
-export default function Login() {
+export default function Index() {
   const { error } = useLoaderData<typeof loader>();
   const transition = useTransition();
   return (
