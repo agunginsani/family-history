@@ -21,7 +21,7 @@ export async function action({
   }
 }
 
-export default function Add() {
+export default function Index() {
   const formRef = React.useRef<HTMLFormElement>(null);
   return (
     <main className="mb-3 rounded bg-white p-4 shadow">

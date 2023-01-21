@@ -42,7 +42,7 @@ export async function action({
   }
 }
 
-export default function Edit() {
+export default function Index() {
   const { user, roles } = useLoaderData<typeof loader>();
   return (
     <main className="mb-3 rounded bg-white p-4 shadow">
