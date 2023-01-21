@@ -27,7 +27,7 @@ export async function action({
   }
 }
 
-export default function Edit() {
+export default function Index() {
   const menu = useLoaderData<typeof loader>();
   return (
     <main className="mb-3 rounded bg-white p-4 shadow">
