@@ -19,69 +19,69 @@ test("Admin can CRUD user", async ({ page }) => {
 
   await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
 
-  /**
-   * Add user.
-   */
+  await (async function addUser() {
+    await main.getByRole("button", { name: "Add" }).click();
 
-  await main.getByRole("button", { name: "Add" }).click();
+    await expect(page.getByRole("heading", { name: "Add User" })).toBeVisible();
 
-  await expect(page.getByRole("heading", { name: "Add User" })).toBeVisible();
+    await main.getByLabel("Name").fill(name);
+    await main.getByLabel("Email").fill(faker.internet.email());
+    await main.getByLabel("Male", { exact: true }).check();
+    await main
+      .getByLabel("Date of Birth")
+      .fill(formatDate(faker.date.birthdate(), "yyyy-MM-dd"));
+    await main.getByLabel("Role").click();
+    await page
+      .getByRole("listbox")
+      .getByRole("option", { name: "ADMIN" })
+      .click();
 
-  await main.getByLabel("Name").fill(name);
-  await main.getByLabel("Email").fill(faker.internet.email());
-  await main.getByLabel("Male", { exact: true }).check();
-  await main
-    .getByLabel("Date of Birth")
-    .fill(formatDate(faker.date.birthdate(), "yyyy-MM-dd"));
-  await main.getByLabel("Role").click();
-  await page
-    .getByRole("listbox")
-    .getByRole("option", { name: "ADMIN" })
-    .click();
+    await main.getByRole("button", { name: "Submit" }).click();
+    await expect(main.getByRole("alert")).toHaveText(`${name} has been added!`);
 
-  await main.getByRole("button", { name: "Submit" }).click();
-  await expect(main.getByRole("alert")).toHaveText(`${name} has been added!`);
+    await main.getByRole("button", { name: "Cancel" }).click();
 
-  await main.getByRole("button", { name: "Cancel" }).click();
+    await expect(
+      table.getByRole("row").filter({ hasText: name })
+    ).toBeVisible();
+  })();
 
-  await expect(table.getByRole("row").filter({ hasText: name })).toBeVisible();
+  await (async function editUser() {
+    await table
+      .getByRole("row")
+      .filter({ hasText: name })
+      .getByRole("link", { name: "Edit" })
+      .click();
 
-  /**
-   * Edit user.
-   */
+    await expect(
+      page.getByRole("heading", { name: "Edit User" })
+    ).toBeVisible();
 
-  await table
-    .getByRole("row")
-    .filter({ hasText: name })
-    .getByRole("link", { name: "Edit" })
-    .click();
+    name = faker.name.fullName();
 
-  await expect(page.getByRole("heading", { name: "Edit User" })).toBeVisible();
+    await main.getByLabel("Name").fill(name);
 
-  name = faker.name.fullName();
+    await main.getByRole("button", { name: "Submit" }).click();
+    await expect(main.getByRole("alert")).toHaveText(`Update success!`);
 
-  await main.getByLabel("Name").fill(name);
+    await main.getByRole("button", { name: "Cancel" }).click();
 
-  await main.getByRole("button", { name: "Submit" }).click();
-  await expect(main.getByRole("alert")).toHaveText(`Update success!`);
+    await expect(
+      table.getByRole("row").filter({ hasText: name })
+    ).toBeVisible();
+  })();
 
-  await main.getByRole("button", { name: "Cancel" }).click();
+  await (async function deleteUser() {
+    await table
+      .getByRole("row")
+      .filter({ hasText: name })
+      .getByRole("button", { name: "Delete" })
+      .click();
 
-  await expect(table.getByRole("row").filter({ hasText: name })).toBeVisible();
-
-  /**
-   * Delete user.
-   */
-
-  await table
-    .getByRole("row")
-    .filter({ hasText: name })
-    .getByRole("button", { name: "Delete" })
-    .click();
-
-  await expect(
-    table.getByRole("row").filter({ hasText: name })
-  ).not.toBeVisible();
+    await expect(
+      table.getByRole("row").filter({ hasText: name })
+    ).not.toBeVisible();
+  })();
 
   await logout(page);
 });

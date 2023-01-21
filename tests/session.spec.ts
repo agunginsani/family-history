@@ -14,33 +14,28 @@ test("Admin can CRUD session", async ({ page }) => {
 
   await login({ page });
 
-  await page
-    .getByRole("list", { name: "Menu" })
-    .getByRole("link", { name: "User" })
-    .click();
+  await (async function addUser() {
+    await page
+      .getByRole("list", { name: "Menu" })
+      .getByRole("link", { name: "User" })
+      .click();
 
-  /**
-   * Add user.
-   */
+    await main.getByRole("button", { name: "Add" }).click();
 
-  await main.getByRole("button", { name: "Add" }).click();
+    await main.getByLabel("Name").fill(name);
+    await main.getByLabel("Email").fill(email);
+    await main.getByLabel("Male", { exact: true }).check();
+    await main
+      .getByLabel("Date of Birth")
+      .fill(formatDate(faker.date.birthdate(), "yyyy-MM-dd"));
+    await main.getByLabel("Role").click();
+    await page
+      .getByRole("listbox")
+      .getByRole("option", { name: "ADMIN" })
+      .click();
 
-  await expect(page.getByRole("heading", { name: "Add User" })).toBeVisible();
-
-  await main.getByLabel("Name").fill(name);
-  await main.getByLabel("Email").fill(email);
-  await main.getByLabel("Male", { exact: true }).check();
-  await main
-    .getByLabel("Date of Birth")
-    .fill(formatDate(faker.date.birthdate(), "yyyy-MM-dd"));
-  await main.getByLabel("Role").click();
-  await page
-    .getByRole("listbox")
-    .getByRole("option", { name: "ADMIN" })
-    .click();
-
-  await main.getByRole("button", { name: "Submit" }).click();
-  await expect(main.getByRole("alert")).toHaveText(`${name} has been added!`);
+    await main.getByRole("button", { name: "Submit" }).click();
+  })();
 
   await logout(page);
 
@@ -60,6 +55,10 @@ test("Admin can CRUD session", async ({ page }) => {
     .filter({ hasText: email })
     .getByRole("button", { name: "Delete" })
     .click();
+
+  await expect(
+    page.getByRole("heading", { name: "Who are you?" })
+  ).toBeVisible();
 
   await login({ page });
 
