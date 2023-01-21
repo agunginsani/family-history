@@ -9,7 +9,7 @@ test("Admin can CRUD menu", async ({ page }) => {
   const table = main.getByRole("table", { name: "Menus" });
   let name = faker.word.noun();
 
-  await login(page);
+  await login({ page });
 
   await page
     .getByRole("list", { name: "Menu" })

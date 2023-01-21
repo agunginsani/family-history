@@ -3,12 +3,14 @@ import { test, expect } from "@playwright/test";
 import { formatDate } from "~/utils/date";
 import { login, logout } from "./utils/authentication";
 
-test("Admin can CRUD user", async ({ page }) => {
+test("Admin can CRUD session", async ({ page }) => {
   await page.goto("/");
 
   const main = page.getByRole("main");
-  const table = main.getByRole("table", { name: "Users" });
-  let name = faker.name.fullName();
+  const table = main.getByRole("table", { name: "Sessions" });
+  const name = faker.name.fullName();
+  const email = faker.internet.email();
+  const password = "P@ssw0rd";
 
   await login({ page });
 
@@ -16,8 +18,6 @@ test("Admin can CRUD user", async ({ page }) => {
     .getByRole("list", { name: "Menu" })
     .getByRole("link", { name: "User" })
     .click();
-
-  await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
 
   /**
    * Add user.
@@ -28,7 +28,7 @@ test("Admin can CRUD user", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Add User" })).toBeVisible();
 
   await main.getByLabel("Name").fill(name);
-  await main.getByLabel("Email").fill(faker.internet.email());
+  await main.getByLabel("Email").fill(email);
   await main.getByLabel("Male", { exact: true }).check();
   await main
     .getByLabel("Date of Birth")
@@ -42,46 +42,38 @@ test("Admin can CRUD user", async ({ page }) => {
   await main.getByRole("button", { name: "Submit" }).click();
   await expect(main.getByRole("alert")).toHaveText(`${name} has been added!`);
 
-  await main.getByRole("button", { name: "Cancel" }).click();
+  await logout(page);
 
-  await expect(table.getByRole("row").filter({ hasText: name })).toBeVisible();
+  await login({ page, email, password });
 
-  /**
-   * Edit user.
-   */
-
-  await table
-    .getByRole("row")
-    .filter({ hasText: name })
-    .getByRole("link", { name: "Edit" })
+  await page
+    .getByRole("list", { name: "Menu" })
+    .getByRole("link", { name: "Session" })
     .click();
 
-  await expect(page.getByRole("heading", { name: "Edit User" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Sessions" })).toBeVisible();
 
-  name = faker.name.fullName();
-
-  await main.getByLabel("Name").fill(name);
-
-  await main.getByRole("button", { name: "Submit" }).click();
-  await expect(main.getByRole("alert")).toHaveText(`Update success!`);
-
-  await main.getByRole("button", { name: "Cancel" }).click();
-
-  await expect(table.getByRole("row").filter({ hasText: name })).toBeVisible();
-
-  /**
-   * Delete user.
-   */
+  await expect(table.getByRole("row").filter({ hasText: email })).toBeVisible();
 
   await table
     .getByRole("row")
-    .filter({ hasText: name })
+    .filter({ hasText: email })
     .getByRole("button", { name: "Delete" })
     .click();
 
-  await expect(
-    table.getByRole("row").filter({ hasText: name })
-  ).not.toBeVisible();
+  await login({ page });
+
+  await page
+    .getByRole("list", { name: "Menu" })
+    .getByRole("link", { name: "User" })
+    .click();
+
+  await page
+    .getByRole("table", { name: "Users" })
+    .getByRole("row")
+    .filter({ hasText: email })
+    .getByRole("button", { name: "Delete" })
+    .click();
 
   await logout(page);
 });
