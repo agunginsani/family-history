@@ -19,69 +19,69 @@ test("Admin can CRUD user", async ({ page }) => {
 
   await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
 
-  await (async function addUser() {
-    await main.getByRole("button", { name: "Add" }).click();
+  /* -------------------------------- Add user -------------------------------- */
 
-    await expect(page.getByRole("heading", { name: "Add User" })).toBeVisible();
+  await main.getByRole("button", { name: "Add" }).click();
 
-    await main.getByLabel("Name").fill(name);
-    await main.getByLabel("Email").fill(faker.internet.email());
-    await main.getByLabel("Male", { exact: true }).check();
-    await main
-      .getByLabel("Date of Birth")
-      .fill(formatDate(faker.date.birthdate(), "yyyy-MM-dd"));
-    await main.getByLabel("Role").click();
-    await page
-      .getByRole("listbox")
-      .getByRole("option", { name: "ADMIN" })
-      .click();
+  await expect(page.getByRole("heading", { name: "Add User" })).toBeVisible();
 
-    await main.getByRole("button", { name: "Submit" }).click();
-    await expect(main.getByRole("alert")).toHaveText(`${name} has been added!`);
+  await main.getByLabel("Name").fill(name);
+  await main.getByLabel("Email").fill(faker.internet.email());
+  await main.getByLabel("Male", { exact: true }).check();
+  await main
+    .getByLabel("Date of Birth")
+    .fill(formatDate(faker.date.birthdate(), "yyyy-MM-dd"));
+  await main.getByLabel("Role").click();
+  await page
+    .getByRole("listbox")
+    .getByRole("option", { name: "ADMIN" })
+    .click();
 
-    await main.getByRole("button", { name: "Cancel" }).click();
+  await main.getByRole("button", { name: "Submit" }).click();
+  await expect(main.getByRole("alert")).toHaveText(`${name} has been added!`);
 
-    await expect(
-      table.getByRole("row").filter({ hasText: name })
-    ).toBeVisible();
-  })();
+  await main.getByRole("button", { name: "Cancel" }).click();
 
-  await (async function editUser() {
-    await table
-      .getByRole("row")
-      .filter({ hasText: name })
-      .getByRole("link", { name: "Edit" })
-      .click();
+  await expect(table.getByRole("row").filter({ hasText: name })).toBeVisible();
 
-    await expect(
-      page.getByRole("heading", { name: "Edit User" })
-    ).toBeVisible();
+  /* -------------------------------------------------------------------------- */
 
-    name = faker.name.fullName();
+  /* ------------------------------- Edit user. ------------------------------- */
 
-    await main.getByLabel("Name").fill(name);
+  await table
+    .getByRole("row")
+    .filter({ hasText: name })
+    .getByRole("link", { name: "Edit" })
+    .click();
 
-    await main.getByRole("button", { name: "Submit" }).click();
-    await expect(main.getByRole("alert")).toHaveText(`Update success!`);
+  await expect(page.getByRole("heading", { name: "Edit User" })).toBeVisible();
 
-    await main.getByRole("button", { name: "Cancel" }).click();
+  name = faker.name.fullName();
 
-    await expect(
-      table.getByRole("row").filter({ hasText: name })
-    ).toBeVisible();
-  })();
+  await main.getByLabel("Name").fill(name);
 
-  await (async function deleteUser() {
-    await table
-      .getByRole("row")
-      .filter({ hasText: name })
-      .getByRole("button", { name: "Delete" })
-      .click();
+  await main.getByRole("button", { name: "Submit" }).click();
+  await expect(main.getByRole("alert")).toHaveText(`Update success!`);
 
-    await expect(
-      table.getByRole("row").filter({ hasText: name })
-    ).not.toBeVisible();
-  })();
+  await main.getByRole("button", { name: "Cancel" }).click();
+
+  await expect(table.getByRole("row").filter({ hasText: name })).toBeVisible();
+
+  /* -------------------------------------------------------------------------- */
+
+  /* ------------------------------ Delete user. ------------------------------ */
+
+  await table
+    .getByRole("row")
+    .filter({ hasText: name })
+    .getByRole("button", { name: "Delete" })
+    .click();
+
+  await expect(
+    table.getByRole("row").filter({ hasText: name })
+  ).not.toBeVisible();
+
+  /* -------------------------------------------------------------------------- */
 
   await logout(page);
 });

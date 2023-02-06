@@ -18,60 +18,60 @@ test("Admin can CRUD menu", async ({ page }) => {
 
   await expect(page.getByRole("heading", { name: "Menus" })).toBeVisible();
 
-  await (async function addMenu() {
-    await main.getByRole("button", { name: "Add" }).click();
+  /* -------------------------------- Add menu -------------------------------- */
 
-    await expect(page.getByRole("heading", { name: "Add Menu" })).toBeVisible();
+  await main.getByRole("button", { name: "Add" }).click();
 
-    await main.getByLabel("Name").fill(name);
-    await main.getByLabel("path").fill(faker.internet.domainWord());
+  await expect(page.getByRole("heading", { name: "Add Menu" })).toBeVisible();
 
-    await main.getByRole("button", { name: "Submit" }).click();
-    await expect(main.getByRole("alert")).toHaveText(`${name} has been added!`);
+  await main.getByLabel("Name").fill(name);
+  await main.getByLabel("path").fill(faker.internet.domainWord());
 
-    await main.getByRole("button", { name: "Cancel" }).click();
+  await main.getByRole("button", { name: "Submit" }).click();
+  await expect(main.getByRole("alert")).toHaveText(`${name} has been added!`);
 
-    await expect(
-      table.getByRole("row").filter({ hasText: name })
-    ).toBeVisible();
-  })();
+  await main.getByRole("button", { name: "Cancel" }).click();
 
-  await (async function editMenu() {
-    await table
-      .getByRole("row")
-      .filter({ hasText: name })
-      .getByRole("link", { name: "Edit" })
-      .click();
+  await expect(table.getByRole("row").filter({ hasText: name })).toBeVisible();
+  
+  /* -------------------------------------------------------------------------- */
 
-    await expect(
-      page.getByRole("heading", { name: "Edit Menu" })
-    ).toBeVisible();
+  /* -------------------------------- Edit menu ------------------------------- */
 
-    name = faker.word.noun();
+  await table
+    .getByRole("row")
+    .filter({ hasText: name })
+    .getByRole("link", { name: "Edit" })
+    .click();
 
-    await main.getByLabel("Name").fill(name);
+  await expect(page.getByRole("heading", { name: "Edit Menu" })).toBeVisible();
 
-    await main.getByRole("button", { name: "Submit" }).click();
-    await expect(main.getByRole("alert")).toHaveText(`Update success!`);
+  name = faker.word.noun();
 
-    await main.getByRole("button", { name: "Cancel" }).click();
+  await main.getByLabel("Name").fill(name);
 
-    await expect(
-      table.getByRole("row").filter({ hasText: name })
-    ).toBeVisible();
-  })();
+  await main.getByRole("button", { name: "Submit" }).click();
+  await expect(main.getByRole("alert")).toHaveText(`Update success!`);
 
-  await (async function deleteMenu() {
-    await table
-      .getByRole("row")
-      .filter({ hasText: name })
-      .getByRole("button", { name: "Delete" })
-      .click();
+  await main.getByRole("button", { name: "Cancel" }).click();
 
-    await expect(
-      table.getByRole("row").filter({ hasText: name })
-    ).not.toBeVisible();
-  })();
+  await expect(table.getByRole("row").filter({ hasText: name })).toBeVisible();
+
+  /* -------------------------------------------------------------------------- */
+
+  /* ------------------------------- Delete menu ------------------------------ */
+
+  await table
+    .getByRole("row")
+    .filter({ hasText: name })
+    .getByRole("button", { name: "Delete" })
+    .click();
+
+  await expect(
+    table.getByRole("row").filter({ hasText: name })
+  ).not.toBeVisible();
+  
+  /* -------------------------------------------------------------------------- */
 
   await logout(page);
 });

@@ -11,53 +11,54 @@ test("Admin can CRUD menu", async ({ page }) => {
 
   await login({ page });
 
-  await (async function addMenu() {
-    await page
-      .getByRole("list", { name: "Menu" })
-      .getByRole("link", { name: "Menu", exact: true })
-      .click();
+  /* -------------------------------- Add menu ------------------------------- */
+  await page
+    .getByRole("list", { name: "Menu" })
+    .getByRole("link", { name: "Menu", exact: true })
+    .click();
 
-    await main.getByRole("button", { name: "Add" }).click();
+  await main.getByRole("button", { name: "Add" }).click();
 
-    await main.getByLabel("Name").fill(name);
-    await main.getByLabel("path").fill(faker.internet.domainWord());
+  await main.getByLabel("Name").fill(name);
+  await main.getByLabel("path").fill(faker.internet.domainWord());
 
-    await main.getByRole("button", { name: "Submit" }).click();
-    await main.getByRole("button", { name: "Cancel" }).click();
-  })();
+  await main.getByRole("button", { name: "Submit" }).click();
+  await main.getByRole("button", { name: "Cancel" }).click();
+  
+  /* -------------------------------------------------------------------------- */
 
-  await (async function addRoleMenu() {
-    await page
-      .getByRole("list", { name: "Menu" })
-      .getByRole("link", { name: "Role Menu", exact: true })
-      .click();
+  /* ------------------------------ Add role menu ----------------------------- */
+   
+  await page
+    .getByRole("list", { name: "Menu" })
+    .getByRole("link", { name: "Role Menu", exact: true })
+    .click();
 
-    await expect(
-      page.getByRole("heading", { name: "Role Menus" })
-    ).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Role Menus" })).toBeVisible();
 
-    await main.getByRole("button", { name: "Add" }).click();
+  await main.getByRole("button", { name: "Add" }).click();
 
-    await expect(
-      page.getByRole("heading", { name: "Add Role Menu" })
-    ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Add Role Menu" })
+  ).toBeVisible();
 
-    await main.getByLabel("Role").click();
-    await page
-      .getByRole("listbox")
-      .getByRole("option", { name: "ADMIN" })
-      .click();
+  await main.getByLabel("Role").click();
+  await page
+    .getByRole("listbox")
+    .getByRole("option", { name: "ADMIN" })
+    .click();
 
-    await main.getByLabel("Menu").click();
-    await page.getByRole("listbox").getByRole("option", { name }).click();
+  await main.getByLabel("Menu").click();
+  await page.getByRole("listbox").getByRole("option", { name }).click();
 
-    await main.getByRole("button", { name: "Submit" }).click();
-    await expect(main.getByRole("alert")).toHaveText(
-      `ADMIN role can access ${name} menu now!`
-    );
+  await main.getByRole("button", { name: "Submit" }).click();
+  await expect(main.getByRole("alert")).toHaveText(
+    `ADMIN role can access ${name} menu now!`
+  );
 
-    await main.getByRole("button", { name: "Cancel" }).click();
-  })();
+  await main.getByRole("button", { name: "Cancel" }).click();
+  
+  /* -------------------------------------------------------------------------- */
 
   await expect(table.getByRole("row").filter({ hasText: name })).toBeVisible();
 
