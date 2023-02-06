@@ -33,7 +33,7 @@ test("Admin can CRUD menu", async ({ page }) => {
   await main.getByRole("button", { name: "Cancel" }).click();
 
   await expect(table.getByRole("row").filter({ hasText: name })).toBeVisible();
-  
+
   /* -------------------------------------------------------------------------- */
 
   /* -------------------------------- Edit menu ------------------------------- */
@@ -70,7 +70,7 @@ test("Admin can CRUD menu", async ({ page }) => {
   await expect(
     table.getByRole("row").filter({ hasText: name })
   ).not.toBeVisible();
-  
+
   /* -------------------------------------------------------------------------- */
 
   await logout(page);

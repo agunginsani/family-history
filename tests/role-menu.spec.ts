@@ -24,11 +24,11 @@ test("Admin can CRUD menu", async ({ page }) => {
 
   await main.getByRole("button", { name: "Submit" }).click();
   await main.getByRole("button", { name: "Cancel" }).click();
-  
+
   /* -------------------------------------------------------------------------- */
 
   /* ------------------------------ Add role menu ----------------------------- */
-   
+
   await page
     .getByRole("list", { name: "Menu" })
     .getByRole("link", { name: "Role Menu", exact: true })
@@ -57,7 +57,7 @@ test("Admin can CRUD menu", async ({ page }) => {
   );
 
   await main.getByRole("button", { name: "Cancel" }).click();
-  
+
   /* -------------------------------------------------------------------------- */
 
   await expect(table.getByRole("row").filter({ hasText: name })).toBeVisible();
